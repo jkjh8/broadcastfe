@@ -13,6 +13,6 @@ console.log(user.value)
     size="sm"
     to="/auth/login"
   >
-    <q-tooltip class="login"> Login </q-tooltip>
+    <q-tooltip class="tooltip" :delay="500"> Login </q-tooltip>
   </q-btn>
 </template>
