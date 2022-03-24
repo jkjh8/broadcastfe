@@ -1,38 +1,33 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { LocalStorage } from 'quasar'
+import { api } from 'boot/axios'
 
 const required = (v) => !!v || '필수 입력 항목 입니다.'
 const chkEmail = (v) => /.+@.+\..+/.test(v) || '올바른 형식이 아닙니다'
+const chkEmailUsed = (v) => fnCheckEmail(v) || '이미 사용중인 이메일 입니다.'
 const chkLength = (v) => v.length >= 8 || '최소 8자 이상 입력하세요'
+const chkPassword = (v) =>
+  v === userInfo.value.password || '비밀번호가 일치하지 않습니다.'
 
 const userInfo = ref({
+  name: '',
   email: '',
-  password: ''
+  password: '',
+  chkPassword: ''
 })
 const saveEmail = ref(false)
 const showPassword = ref(false)
+const showChkPassword = ref(false)
 
-function onLogin() {
+async function fnCheckEmail(value) {
+  const r = await api.get(`/auth/checkEmail?email=${value}`)
+  return r.status
+}
+
+async function onRegister() {
   console.log(userInfo.value)
+  await api.post('/auth/register', userInfo.value)
 }
-
-function fnSetEmailLocalStorage(value) {
-  if (value) {
-    if (userInfo.value.email) {
-      LocalStorage.set('email', userInfo.value.email)
-    }
-  } else {
-    LocalStorage.remove('email')
-  }
-}
-
-onMounted(() => {
-  if (LocalStorage.has('email')) {
-    saveEmail.value = true
-    userInfo.value.email = LocalStorage.getItem('email')
-  }
-})
 </script>
 
 <template>
@@ -40,7 +35,7 @@ onMounted(() => {
     <div
       style="padding-top: 5%; width: 100%; max-width: 500px; min-width: 250px"
     >
-      <div class="text-grey-6">이메일로 로그인하기</div>
+      <div class="text-grey-6">이메일로 가입하기</div>
       <q-separator style="margin-bottom: 1rem" />
     </div>
 
@@ -48,13 +43,21 @@ onMounted(() => {
       class="q-gutter-y-md"
       style="padding-top: 2%; width: 100%; max-width: 500px; min-width: 250px"
     >
-      <q-form @submit="onLogin">
+      <q-form @submit="onRegister">
         <div class="text-bold">이메일 주소</div>
         <q-input
           v-model="userInfo.email"
           outlined
           placeholder="이메일 주소"
-          :rules="[required, chkEmail]"
+          :rules="[required, chkEmail, chkEmailUsed]"
+          lazy-rules
+        />
+        <div class="text-bold">이름</div>
+        <q-input
+          v-model="userInfo.name"
+          outlined
+          placeholder="이름"
+          :rules="[required]"
           lazy-rules
         />
         <div class="text-bold">비밀번호</div>
@@ -76,36 +79,41 @@ onMounted(() => {
           </template>
         </q-input>
 
-        <div class="row items-center">
-          <q-checkbox
-            v-model="saveEmail"
-            @update:model-value="fnSetEmailLocalStorage"
-          />
-          <span class="q-mt-xs">이메일 저장하기</span>
-        </div>
+        <div class="text-bold">비밀번호 확인</div>
+        <q-input
+          v-model="userInfo.chkPassword"
+          outlined
+          placeholder="비밀번호 확인"
+          :type="showChkPassword ? 'text' : 'password'"
+          :rules="[required, chkLength, chkPassword]"
+          lazy-rules
+        >
+          <template #append>
+            <q-icon
+              class="q-mr-md"
+              style="cursor: pointer"
+              :name="showChkPassword ? 'visibility' : 'visibility_off'"
+              @click="showChkPassword = !showChkPassword"
+            />
+          </template>
+        </q-input>
+
         <q-btn
-          class="full-width text-bold animate__animated animate__pulse"
+          class="full-width text-bold q-mt-lg"
           rounded
           unelevated
           color="primary"
           style="height: 2.8rem"
           type="submit"
         >
-          로그인하기
+          가입하기
         </q-btn>
       </q-form>
 
       <q-separator style="margin: 2rem 0" />
-      <div class="text-bold text-center">계정이 없나요?</div>
-      <q-btn
-        class="full-width"
-        style="height: 2.8rem; border: 1px solid #e1e1e1"
-        unelevated
-        rounded
-        to="/auth/register"
-      >
-        가입하기
-      </q-btn>
+      <div class="row justify-center">
+        <q-btn flat rounded to="/">홈으로</q-btn>
+      </div>
     </div>
   </div>
 </template>
