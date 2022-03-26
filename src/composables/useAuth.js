@@ -1,7 +1,16 @@
 import { ref } from 'vue'
 
-const user = ref(null)
-const updateUser = (args) => {
-  user = args
+let user = ref(null)
+
+function updateUser(args) {
+  user.value = args
 }
-export { user, updateUser }
+
+function getNickName() {
+  if (user.value) {
+    return user.value.name.substring(0, 1)
+  } else {
+    return 'N'
+  }
+}
+export { user, updateUser, getNickName }

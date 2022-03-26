@@ -13,7 +13,7 @@ function clickHome() {
     <q-header>
       <div
         class="bg-white text-grey-10 row justify-around items-center"
-        style="height: 3rem"
+        style="height: 3.5rem"
       >
         <div class="row no-wrap items-center q-gutter-x-md">
           <!-- home -->
@@ -22,10 +22,10 @@ function clickHome() {
               class="home"
               name="svguse:icons.svg#logo"
               color="primary"
-              size="sm"
+              size="md"
               @click="clickHome"
             />
-            <div class="home gt-xs text-h6" @click="clickHome">
+            <div class="home gt-xs text-h5" @click="clickHome">
               Media Server
             </div>
           </div>

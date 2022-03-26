@@ -1,10 +1,14 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { api } from 'boot/axios'
+import { useRouter } from 'vue-router'
+import useNotify from '@/composables/useNotify'
+const router = useRouter()
+const { notifyInfo, notifyError } = useNotify()
 
 const required = (v) => !!v || '필수 입력 항목 입니다.'
 const chkEmail = (v) => /.+@.+\..+/.test(v) || '올바른 형식이 아닙니다'
-const chkEmailUsed = (v) => fnCheckEmail(v) || '이미 사용중인 이메일 입니다.'
+const chkEmailUsed = (v) => fnCheckEmail(v)
 const chkLength = (v) => v.length >= 8 || '최소 8자 이상 입력하세요'
 const chkPassword = (v) =>
   v === userInfo.value.password || '비밀번호가 일치하지 않습니다.'
@@ -15,18 +19,38 @@ const userInfo = ref({
   password: '',
   chkPassword: ''
 })
-const saveEmail = ref(false)
 const showPassword = ref(false)
 const showChkPassword = ref(false)
 
 async function fnCheckEmail(value) {
   const r = await api.get(`/auth/checkEmail?email=${value}`)
-  return r.status
+  if (r && r.data.status) {
+    return '이미 사용중인 이메일 입니다.'
+  }
+  return true
 }
 
 async function onRegister() {
-  console.log(userInfo.value)
-  await api.post('/auth/register', userInfo.value)
+  try {
+    await api.post('/auth/register', userInfo.value)
+    notifyInfo({
+      message: '사용자 등록이 완료 되었습니다.',
+      caption:
+        '로그인 페이지로 이동하여 로그인 해주세요. 잠시후에 로그인 페이지로 이동합니다.'
+    })
+    setTimeout(() => {
+      router.push('/auth/login')
+    }, 2000)
+  } catch (error) {
+    console.error(error)
+    notifyError({
+      message: '사용자 등록중 문제가 발생하였습니다.',
+      caption: '관리자에게 문의 하거나, 잠시후에 다시 시도해 주세요.'
+    })
+    setTimeout(() => {
+      router.push('/')
+    }, 1000)
+  }
 }
 </script>
 

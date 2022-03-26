@@ -1,6 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { LocalStorage } from 'quasar'
+import { updateUser } from '@/composables/useAuth'
+import { api } from 'boot/axios'
+import { useRouter } from 'vue-router'
+import useNotify from '@/composables/useNotify'
+
+const router = useRouter()
+const { notifyInfo, notifyWarn } = useNotify()
 
 const required = (v) => !!v || '필수 입력 항목 입니다.'
 const chkEmail = (v) => /.+@.+\..+/.test(v) || '올바른 형식이 아닙니다'
@@ -13,8 +20,21 @@ const userInfo = ref({
 const saveEmail = ref(false)
 const showPassword = ref(false)
 
-function onLogin() {
-  console.log(userInfo.value)
+async function onLogin() {
+  try {
+    const r = await api.post('/auth', userInfo.value)
+    console.log(r)
+    if (r.data.status) {
+      setTimeout(() => {
+        router.push('/')
+      }, 500)
+    } else {
+      notifyWarn({ message: r.data.message })
+    }
+  } catch (err) {
+    console.error(err)
+    updateUser(null)
+  }
 }
 
 function fnSetEmailLocalStorage(value) {

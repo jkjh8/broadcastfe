@@ -6,13 +6,12 @@ import { user } from '@/composables/useAuth'
 const router = useRouter()
 
 const clickHome = () => {
-  console.log('home')
   router.push('/')
 }
 
 onMounted(() => {
   if (user.value && user.value.email) {
-    clickHome()
+    // clickHome()
   }
 })
 </script>
