@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { LocalStorage } from 'quasar'
+import { LocalStorage, useQuasar } from 'quasar'
 import { updateUser } from '@/composables/useAuth'
 import { api } from 'boot/axios'
 import { useRouter } from 'vue-router'
 import useNotify from '@/composables/useNotify'
 
 const router = useRouter()
+const $q = useQuasar()
 const { notifyInfo, notifyWarn } = useNotify()
 
 const required = (v) => !!v || '필수 입력 항목 입니다.'
@@ -22,7 +23,9 @@ const showPassword = ref(false)
 
 async function onLogin() {
   try {
+    $q.loading.show()
     const r = await api.post('/auth', userInfo.value)
+    $q.loading.hide()
     console.log(r)
     if (r.data.status) {
       setTimeout(() => {
@@ -32,6 +35,7 @@ async function onLogin() {
       notifyWarn({ message: r.data.message })
     }
   } catch (err) {
+    $q.loading.hide()
     console.error(err)
     updateUser(null)
   }

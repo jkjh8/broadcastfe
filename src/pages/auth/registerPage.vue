@@ -2,8 +2,11 @@
 import { ref } from 'vue'
 import { api } from 'boot/axios'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import useNotify from '@/composables/useNotify'
+
 const router = useRouter()
+const $q = useQuasar()
 const { notifyInfo, notifyError } = useNotify()
 
 const required = (v) => !!v || '필수 입력 항목 입니다.'
@@ -32,7 +35,9 @@ async function fnCheckEmail(value) {
 
 async function onRegister() {
   try {
+    $q.loading.show()
     await api.post('/auth/register', userInfo.value)
+    $q.loading.hide()
     notifyInfo({
       message: '사용자 등록이 완료 되었습니다.',
       caption:
@@ -40,8 +45,9 @@ async function onRegister() {
     })
     setTimeout(() => {
       router.push('/auth/login')
-    }, 2000)
+    }, 500)
   } catch (error) {
+    $q.loading.hide()
     console.error(error)
     notifyError({
       message: '사용자 등록중 문제가 발생하였습니다.',
@@ -49,7 +55,7 @@ async function onRegister() {
     })
     setTimeout(() => {
       router.push('/')
-    }, 1000)
+    }, 500)
   }
 }
 </script>
