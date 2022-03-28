@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import UserState from 'components/layout/userState'
+import MenuComponent from './menuComponent'
 
 const router = useRouter()
 function clickHome() {
@@ -29,10 +30,9 @@ function clickHome() {
               Media Server
             </div>
           </div>
-
-          <!-- menu -->
-          <div>Menu</div>
         </div>
+        <!-- menu -->
+        <MenuComponent />
 
         <!-- right pan -->
         <div>
