@@ -15,6 +15,20 @@ const routes = [
       }
     ]
   },
+  {
+    path: '/admin',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: 'devicelog',
+        component: () => import('pages/admin/deviceLogPage.vue')
+      },
+      {
+        path: 'usermanagement',
+        component: () => import('pages/admin/usersPage.vue')
+      }
+    ]
+  },
 
   // Always leave this as last one,
   // but you can also remove it

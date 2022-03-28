@@ -4,14 +4,32 @@
       <div>관리자</div>
 
       <q-menu :offset="[0, 20]">
-        <q-list separator>
-          <q-item clickable>
+        <q-list separator style="min-width: 300px">
+          <q-item clickable to="/admin/devicelog">
             <q-item-section avatar>
-              <q-avatar rounded>로그</q-avatar>
+              <q-avatar
+                style="border: solid 1px #eee"
+                rounded
+                icon="svguse:icons.svg#serverColor"
+              ></q-avatar>
             </q-item-section>
             <q-item-section>
               <q-item-label> 관리자 로그 </q-item-label>
               <q-item-label caption> 하드웨어 및 관리자 로그</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable to="/admin/usermanagement">
+            <q-item-section avatar>
+              <q-avatar
+                style="border: solid 1px #eee"
+                rounded
+                icon="svguse:icons.svg#usersColor"
+              ></q-avatar>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label> 사용자 관리 </q-item-label>
+              <q-item-label caption> 사용자 권한 및 계정 관리</q-item-label>
             </q-item-section>
           </q-item>
         </q-list>

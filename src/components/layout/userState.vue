@@ -11,7 +11,7 @@ async function fnLogout() {
 <template>
   <div v-if="!user">
     <q-btn
-      round
+      class="btnSize"
       flat
       color="grey-2"
       text-color="primary"
@@ -24,15 +24,13 @@ async function fnLogout() {
   </div>
 
   <div v-else>
-    <q-btn flat round>
-      <q-avatar size="md" round color="primary" text-color="white">
-        {{ getNickName() }}
-      </q-avatar>
+    <q-btn class="btnSize text-bold" flat text-color="primary">
+      {{ getNickName() }}
 
       <q-menu :offset="[0, 20]">
         <div>
           <div style="padding: 20px 80px 20px 80px">
-            <q-avatar size="80px" round color="primary" text-color="white">
+            <q-avatar size="80px" color="primary" text-color="white">
               {{ getNickName() }}
             </q-avatar>
           </div>
@@ -65,3 +63,24 @@ async function fnLogout() {
     </q-btn>
   </div>
 </template>
+
+<style scoped>
+.btnSize {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: solid 1px #eee;
+  border-radius: 0.5rem;
+}
+.btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  background: linear-gradient(to bottom right, #1291b1, #012f64);
+  border: solid 1px #eee;
+  border-radius: 0.5rem;
+  color: white;
+}
+.btn:hover {
+  background: linear-gradient(to bottom right, #289fbd, #20548f);
+}
+</style>
