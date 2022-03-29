@@ -1,1 +1,189 @@
-<template>users</template>
+<script setup>
+import { onMounted, ref, computed } from 'vue'
+import moment from 'moment'
+import { api } from '@/boot/axios'
+import { users } from '@/composables/useUsers'
+
+const search = ref('')
+
+async function getUsers() {
+  const r = await api.get('/auth/users')
+  users.value = r.data.users
+}
+
+const initPagination = ref({
+  sortBy: 'desc',
+  descending: false,
+  page: 1,
+  rowsPerPage: 10
+})
+
+const filter = ref('')
+
+const totalPages = computed(() => {
+  return Math.ceil(users.value.length / initPagination.value.rowsPerPage)
+})
+
+onMounted(() => {
+  getUsers()
+})
+
+const columns = [
+  {
+    name: 'name',
+    align: 'center',
+    label: 'Name',
+    field: 'name',
+    sortable: true
+  },
+  {
+    name: 'email',
+    align: 'center',
+    label: 'E-Mail',
+    field: 'email',
+    sortable: true
+  },
+  {
+    name: 'admin',
+    align: 'center',
+    label: 'Admin',
+    field: 'admin',
+    sortable: true
+  },
+  {
+    name: 'zones',
+    align: 'center',
+    label: 'Zones',
+    field: 'zones',
+    sortable: true
+  },
+  {
+    name: 'numberOfLogin',
+    align: 'center',
+    label: 'Logins',
+    field: 'numberOfLogin',
+    sortable: true
+  },
+  {
+    name: 'createdAt',
+    align: 'center',
+    label: 'Created',
+    field: 'createdAt',
+    sortable: true
+  },
+  {
+    name: 'lastLogin',
+    align: 'center',
+    label: 'Last Login',
+    field: 'lastLogin',
+    sortable: true
+  },
+  {
+    name: 'actions',
+    align: 'center',
+    label: 'Actions'
+  }
+]
+</script>
+
+<template>
+  <div class="row justify-between items-center">
+    <div>
+      <q-item>
+        <q-item-section avatar>
+          <q-icon name="svguse:icons.svg#usersColor" size="md" />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label> 사용자 관리 </q-item-label>
+          <q-item-label caption>사용자 권한 변경 및 계정 삭제</q-item-label>
+        </q-item-section>
+      </q-item>
+    </div>
+    <div>
+      <q-input v-model="filter" filled dense clearable label="Search">
+        <template #append>
+          <q-icon name="search"></q-icon>
+        </template>
+      </q-input>
+    </div>
+  </div>
+  <div class="bord">
+    <q-table
+      style="border-radius: 0.5rem"
+      :rows="users"
+      :columns="columns"
+      flat
+      :pagination="initPagination"
+      :filter="filter"
+    >
+      <!-- headers -->
+      <template #header="props">
+        <q-tr class="bg-grey-1" :props="props">
+          <q-th
+            v-for="col in props.cols"
+            :key="col.name"
+            :props="props"
+            class="text-h6 text-bold"
+          >
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+      </template>
+
+      <!-- body -->
+      <template #body="props">
+        <q-tr :props="props">
+          <q-td key="name" :props="props">
+            {{ props.row.name }}
+          </q-td>
+          <q-td key="email" :props="props">
+            {{ props.row.email }}
+          </q-td>
+          <q-td key="admin" :props="props">
+            <q-icon
+              :name="props.row.admin ? 'fas fa-circle-check' : 'fas fa-ban'"
+              :color="props.row.admin ? 'green' : 'red'"
+            />
+          </q-td>
+          <q-td key="zones" :props="props">
+            <q-btn
+              icon="fas fa-folder-tree"
+              size="sm"
+              flat
+              round
+              color="primary"
+            ></q-btn>
+          </q-td>
+          <q-td key="numberOfLogin" :props="props">
+            {{ props.row.numberOfLogin }}
+          </q-td>
+          <q-td key="createdAt" :props="props">
+            {{ moment(props.row.createdAt).format('YYYY-MM-DD hh:mm:ss a') }}
+          </q-td>
+          <q-td key="lastLogin" :props="props">
+            {{ moment(props.row.lastLogin).format('YYYY-MM-DD hh:mm:ss a') }}
+          </q-td>
+          <q-td key="actions" :props="props">
+            <q-btn icon="fas fa-trash" flat round size="sm" color="red-10" />
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+  </div>
+  <div class="q-mt-md row justify-center">
+    <q-pagination
+      v-model="initPagination.page"
+      :max="totalPages"
+      direction-links
+      boundary-links
+    />
+  </div>
+</template>
+
+<style scoped>
+.bord {
+  margin-top: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+}
+</style>

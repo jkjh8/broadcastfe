@@ -11,10 +11,10 @@ function clickHome() {
 
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header>
+    <q-header style="background: #fff">
       <div
-        class="bg-white text-grey-10 row justify-around items-center"
-        style="height: 3.5rem"
+        class="bg-white text-grey-10 row justify-between items-center"
+        style="height: 3.5rem; margin: 0 5%"
       >
         <div class="row no-wrap items-center q-gutter-x-md">
           <!-- home -->
