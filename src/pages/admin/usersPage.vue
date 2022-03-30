@@ -113,6 +113,7 @@ const columns = [
       :rows="users"
       :columns="columns"
       flat
+      hide-pagination
       :pagination="initPagination"
       :filter="filter"
     >

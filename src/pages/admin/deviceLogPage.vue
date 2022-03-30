@@ -96,6 +96,8 @@ const columns = [
       :rows="deviceLog"
       :columns="columns"
       flat
+      wrap-cells
+      hide-pagination
       :pagination="{ page, rowsPerPage }"
     >
       <template #header="props">
@@ -118,8 +120,10 @@ const columns = [
           <q-td key="level" :props="props">
             {{ props.row.level }}
           </q-td>
-          <q-td key="message" :props="props">
-            {{ props.row.message }}
+          <q-td key="message" :props="props" style="max-width: 800px">
+            <div>
+              {{ props.row.message }}
+            </div>
           </q-td>
         </q-tr>
       </template>
