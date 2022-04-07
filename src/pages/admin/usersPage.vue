@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { useQuasar } from 'quasar'
 import moment from 'moment'
 import { api } from '@/boot/axios'
 import { users } from '@/composables/useUsers'
 
+const $q = useQuasar()
 const search = ref('')
 
 async function getUsers() {
@@ -23,6 +25,28 @@ const filter = ref('')
 const totalPages = computed(() => {
   return Math.ceil(users.value.length / initPagination.value.rowsPerPage)
 })
+
+async function fnSetAdmin(user) {
+  $q.dialog({
+    title: '관리자 권한',
+    message: `${user.name}의 관리자 권한이 변경 됩니다.`,
+    cancel: true
+  }).onOk(async () => {
+    await api.get(`/auth/setadmin?id=${user._id}&admin=${!user.admin}`)
+    await getUsers()
+  })
+}
+
+async function fnDeleteUser(user) {
+  $q.dialog({
+    title: '사용자 삭제',
+    message: `${user.name}의 사용자 계정을 삭제 하시겠습니까?`,
+    cancel: true
+  }).onOk(async () => {
+    await api.get(`/auth/deleteuser?id=${user._id}`)
+    await getUsers()
+  })
+}
 
 onMounted(() => {
   getUsers()
@@ -110,6 +134,7 @@ const columns = [
   <div class="bord">
     <q-table
       style="border-radius: 0.5rem"
+      table-header-class="text-h6 text-bold bg-grey-2"
       :rows="users"
       :columns="columns"
       flat
@@ -117,20 +142,6 @@ const columns = [
       :pagination="initPagination"
       :filter="filter"
     >
-      <!-- headers -->
-      <template #header="props">
-        <q-tr class="bg-grey-1" :props="props">
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-            class="text-h6 text-bold"
-          >
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
-
       <!-- body -->
       <template #body="props">
         <q-tr :props="props">
@@ -142,8 +153,10 @@ const columns = [
           </q-td>
           <q-td key="admin" :props="props">
             <q-icon
+              style="cursor: pointer"
               :name="props.row.admin ? 'fas fa-circle-check' : 'fas fa-ban'"
               :color="props.row.admin ? 'green' : 'red'"
+              @click="fnSetAdmin(props.row)"
             />
           </q-td>
           <q-td key="zones" :props="props">
@@ -165,7 +178,14 @@ const columns = [
             {{ moment(props.row.lastLogin).format('YYYY-MM-DD hh:mm:ss a') }}
           </q-td>
           <q-td key="actions" :props="props">
-            <q-btn icon="fas fa-trash" flat round size="sm" color="red-10" />
+            <q-btn
+              icon="fas fa-trash"
+              flat
+              round
+              size="sm"
+              color="red-10"
+              @click="fnDeleteUser(props.row)"
+            />
           </q-td>
         </q-tr>
       </template>
@@ -175,6 +195,7 @@ const columns = [
     <q-pagination
       v-model="initPagination.page"
       :max="totalPages"
+      :max-pages="10"
       direction-links
       boundary-links
     />

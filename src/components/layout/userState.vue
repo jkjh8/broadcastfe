@@ -48,6 +48,7 @@ async function fnLogout() {
               style="border: solid 1px #aaa"
               rounded
               unelevated
+              to="/auth/user"
             >
               사용자 계정 관리
             </q-btn>

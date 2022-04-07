@@ -28,9 +28,7 @@ async function onLogin() {
     $q.loading.hide()
     console.log(r)
     if (r.data.status) {
-      setTimeout(() => {
-        router.push('/')
-      }, 500)
+      router.push('/')
     } else {
       notifyWarn({ message: r.data.message })
     }

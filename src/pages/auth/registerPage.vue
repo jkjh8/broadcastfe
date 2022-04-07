@@ -53,9 +53,7 @@ async function onRegister() {
       message: '사용자 등록중 문제가 발생하였습니다.',
       caption: '관리자에게 문의 하거나, 잠시후에 다시 시도해 주세요.'
     })
-    setTimeout(() => {
-      router.push('/')
-    }, 500)
+    router.push('/')
   }
 }
 </script>

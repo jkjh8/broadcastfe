@@ -133,6 +133,7 @@ const columns = [
     <q-pagination
       v-model="page"
       :max="totalPages"
+      :max-pages="10"
       direction-links
       boundary-links
       @update:model-value="getDeviceLogs"
