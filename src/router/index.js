@@ -7,7 +7,7 @@ import {
 } from 'vue-router'
 import routes from './routes'
 import { api } from '@/boot/axios'
-import { user, updateUser } from '@/composables/useAuth'
+import { updateUser } from '@/composables/useAuth'
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -40,6 +40,8 @@ export default route(function (/* { store, ssrContext } */) {
     const r = await api.get('/auth')
     if (r.data && r.data.user) {
       updateUser(r.data.user)
+    } else {
+      updateUser(null)
     }
     next()
   })
