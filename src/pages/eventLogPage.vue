@@ -6,23 +6,37 @@ import PageName from '@/components/layout/pageName'
 
 const columns = [
   {
-    name: 'timestamp',
+    name: 'createdAt',
     align: 'center',
     label: 'Time',
-    field: 'timestamp',
+    field: 'createdAt',
     sortable: true
   },
   {
-    name: 'level',
+    name: 'priority',
     align: 'center',
-    label: 'Level',
-    field: 'level',
+    label: 'Priority',
+    field: 'priority',
+    sortable: true
+  },
+  {
+    name: 'id',
+    align: 'center',
+    label: 'ID(User)',
+    field: 'id',
+    sortable: true
+  },
+  {
+    name: 'zones',
+    align: 'center',
+    label: 'Zones',
+    field: 'zones',
     sortable: true
   },
   { name: 'message', align: 'center', label: 'Message', field: 'message' }
 ]
 
-let deviceLog = ref([])
+let eventlog = ref([])
 const page = ref(1)
 const rowsPerPage = ref(10)
 const totalDocs = ref(0)
@@ -30,14 +44,14 @@ const totalPages = ref(0)
 
 const search = ref('')
 
-async function getDeviceLogs() {
+async function getEventLogs() {
   const r = await api.get(
-    `/admin/devicelog?page=${page.value}&limit=${
+    `/eventlog?page=${page.value}&limit=${
       rowsPerPage.value
     }&search=${encodeURIComponent(search.value)}`
   )
   console.log(r)
-  deviceLog.value = r.data.docs
+  eventlog.value = r.data.docs
   totalPages.value = r.data.totalPages
 }
 
@@ -52,15 +66,15 @@ function logLevelColor(level) {
 }
 
 onBeforeMount(() => {
-  getDeviceLogs()
+  getEventLogs()
 })
 </script>
 
 <template>
   <div class="row justify-between items-center">
     <PageName
-      name="관리자 로그"
-      caption="하드웨어 로그 및 시스템 관리자 등급 로그"
+      name="이벤트 로그"
+      caption="이벤트 로그 및 방송 기록"
       icon="svguse:icons.svg#serverColorInfo"
     />
     <div>
@@ -70,15 +84,11 @@ onBeforeMount(() => {
         dense
         clearable
         label="Search"
-        @keyup.enter="getDeviceLogs"
-        @clear="getDeviceLogs"
+        @keyup.enter="getEventLogs"
+        @clear="getEventLogs"
       >
         <template #append>
-          <q-icon
-            style="cursor: pointer"
-            name="search"
-            @click="getDeviceLogs"
-          />
+          <q-icon style="cursor: pointer" name="search" @click="getEventLogs" />
         </template>
       </q-input>
     </div>
@@ -88,7 +98,7 @@ onBeforeMount(() => {
   <div class="bord">
     <q-table
       style="border-radius: 0.5rem"
-      :rows="deviceLog"
+      :rows="eventlog"
       :columns="columns"
       flat
       wrap-cells
@@ -109,11 +119,17 @@ onBeforeMount(() => {
       </template>
       <template #body="props">
         <q-tr :props="props" :class="logLevelColor(props.row.level)">
-          <q-td key="timestamp" :props="props">
-            {{ moment(props.row.timestamp).format('YYYY-MM-DD hh:mm:ss a') }}
+          <q-td key="createdAt" :props="props">
+            {{ moment(props.row.createdAt).format('YYYY-MM-DD hh:mm:ss a') }}
           </q-td>
-          <q-td key="level" :props="props">
-            {{ props.row.level }}
+          <q-td key="priority" :props="props">
+            {{ props.row.priority }}
+          </q-td>
+          <q-td key="id" :props="props">
+            {{ props.row.id }}
+          </q-td>
+          <q-td key="zones" :props="props">
+            {{ props.row.zones }}
           </q-td>
           <q-td key="message" :props="props" style="max-width: 800px">
             <div>
@@ -131,7 +147,7 @@ onBeforeMount(() => {
       :max-pages="10"
       direction-links
       boundary-links
-      @update:model-value="getDeviceLogs"
+      @update:model-value="getEventLogs"
     />
   </div>
 </template>

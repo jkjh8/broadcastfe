@@ -3,54 +3,8 @@ import { onMounted, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import moment from 'moment'
 import { api } from '@/boot/axios'
-import { users } from '@/composables/useUsers'
 
-const $q = useQuasar()
-const search = ref('')
-
-async function getUsers() {
-  const r = await api.get('/auth/users')
-  users.value = r.data.users
-}
-
-const initPagination = ref({
-  sortBy: 'desc',
-  descending: false,
-  page: 1,
-  rowsPerPage: 10
-})
-
-const filter = ref('')
-
-const totalPages = computed(() => {
-  return Math.ceil(users.value.length / initPagination.value.rowsPerPage)
-})
-
-async function fnSetAdmin(user) {
-  $q.dialog({
-    title: '관리자 권한',
-    message: `${user.name}의 관리자 권한이 변경 됩니다.`,
-    cancel: true
-  }).onOk(async () => {
-    await api.get(`/auth/setadmin?id=${user._id}&admin=${!user.admin}`)
-    await getUsers()
-  })
-}
-
-async function fnDeleteUser(user) {
-  $q.dialog({
-    title: '사용자 삭제',
-    message: `${user.name}의 사용자 계정을 삭제 하시겠습니까?`,
-    cancel: true
-  }).onOk(async () => {
-    await api.get(`/auth/deleteuser?id=${user._id}`)
-    await getUsers()
-  })
-}
-
-onMounted(() => {
-  getUsers()
-})
+import PageName from '@/components/layout/pageName.vue'
 
 const columns = [
   {
@@ -108,21 +62,62 @@ const columns = [
     label: 'Actions'
   }
 ]
+
+const $q = useQuasar()
+const search = ref('')
+const users = ref([])
+async function getUsers() {
+  const r = await api.get('/auth/users')
+  users.value = r.data.users
+}
+
+const initPagination = ref({
+  sortBy: 'desc',
+  descending: false,
+  page: 1,
+  rowsPerPage: 10
+})
+
+const filter = ref('')
+
+const totalPages = computed(() => {
+  return Math.ceil(users.value.length / initPagination.value.rowsPerPage)
+})
+
+async function fnSetAdmin(user) {
+  $q.dialog({
+    title: '관리자 권한',
+    message: `${user.name}의 관리자 권한이 변경 됩니다.`,
+    cancel: true
+  }).onOk(async () => {
+    await api.get(`/auth/setadmin?id=${user._id}&admin=${!user.admin}`)
+    await getUsers()
+  })
+}
+
+async function fnDeleteUser(user) {
+  $q.dialog({
+    title: '사용자 삭제',
+    message: `${user.name}의 사용자 계정을 삭제 하시겠습니까?`,
+    cancel: true
+  }).onOk(async () => {
+    await api.get(`/auth/deleteuser?id=${user._id}`)
+    await getUsers()
+  })
+}
+
+onMounted(() => {
+  getUsers()
+})
 </script>
 
 <template>
   <div class="row justify-between items-center">
-    <div>
-      <q-item>
-        <q-item-section avatar>
-          <q-icon name="svguse:icons.svg#usersColor" size="md" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label> 사용자 관리 </q-item-label>
-          <q-item-label caption>사용자 권한 변경 및 계정 삭제</q-item-label>
-        </q-item-section>
-      </q-item>
-    </div>
+    <PageName
+      name="사용자 관리"
+      caption="사용자 권한 변경 및 계정 관리"
+      icon="svguse:icons.svg#usersColor"
+    />
     <div>
       <q-input v-model="filter" filled dense clearable label="Search">
         <template #append>
@@ -131,6 +126,8 @@ const columns = [
       </q-input>
     </div>
   </div>
+
+  <!-- Tabel -->
   <div class="bord">
     <q-table
       style="border-radius: 0.5rem"
@@ -201,11 +198,3 @@ const columns = [
     />
   </div>
 </template>
-
-<style scoped>
-.bord {
-  margin-top: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-}
-</style>

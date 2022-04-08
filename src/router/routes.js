@@ -31,6 +31,28 @@ const routes = [
     ]
   },
 
+  {
+    path: '/device',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/device/devicePage.vue')
+      }
+    ]
+  },
+
+  {
+    path: '/eventLog',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/eventLogPage.vue')
+      }
+    ]
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {

@@ -1,7 +1,23 @@
 <template>
   <div style="padding-top: 5px">
+    <q-btn
+      class="q-px-md q-py-sm"
+      style="border-radius: 10px"
+      flat
+      to="/device"
+    >
+      <div>Devices</div>
+    </q-btn>
+    <q-btn
+      class="q-px-md q-py-sm"
+      style="border-radius: 10px"
+      flat
+      to="/eventlog"
+    >
+      <div>Event Log</div>
+    </q-btn>
     <q-btn class="q-px-md q-py-sm" style="border-radius: 10px" flat>
-      <div>관리자</div>
+      <div>ADMIN</div>
 
       <q-menu :offset="[0, 20]">
         <q-list separator style="min-width: 300px">
@@ -10,7 +26,7 @@
               <q-avatar
                 style="border: solid 1px #eee"
                 rounded
-                icon="svguse:icons.svg#serverColor"
+                icon="svguse:icons.svg#serverColorInfo"
               ></q-avatar>
             </q-item-section>
             <q-item-section>

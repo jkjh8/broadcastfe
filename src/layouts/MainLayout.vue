@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import UserState from 'components/layout/userState'
-import MenuComponent from './menuComponent'
+import MenuComponent from 'components/layout/menuComponent'
 
 const router = useRouter()
 function clickHome() {
