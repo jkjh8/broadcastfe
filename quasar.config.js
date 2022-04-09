@@ -25,7 +25,7 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
-    boot: ['axios'],
+    boot: ['axios', 'socketio'],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-css
     css: ['app.scss', 'fonts.scss'],
@@ -76,7 +76,9 @@ module.exports = configure(function (ctx) {
       extendWebpack(cfg) {
         cfg.resolve.alias = {
           ...cfg.resolve.alias,
-          '@': path.resolve(__dirname, './src')
+          '@': path.resolve(__dirname, './src'),
+          'component': path.resolve(__dirname, './src/components'),
+          'composables': path.resolve(__dirname, './src/composables')
         }
       }
     },

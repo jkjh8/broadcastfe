@@ -1,12 +1,23 @@
 <script setup>
+import { onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import UserState from 'components/layout/userState'
 import MenuComponent from 'components/layout/menuComponent'
+import { socket } from 'boot/socketio'
+import { userSocket } from '@/composables/useAuth'
 
 const router = useRouter()
+
 function clickHome() {
   router.push('/')
 }
+
+onBeforeMount(() => {
+  socket.on('connect', () => {
+    console.log(socket.id)
+    userSocket.value = socket.id
+  })
+})
 </script>
 
 <template>

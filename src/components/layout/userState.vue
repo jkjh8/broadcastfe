@@ -1,9 +1,15 @@
 <script setup>
 import { user, updateUser, getNickName } from '@/composables/useAuth.js'
 import { api } from '@/boot/axios'
+import { socket } from 'boot/socketio'
 
 async function fnLogout() {
-  const r = await api.get('/auth/logout')
+  try {
+    const r = await api.get('/auth/logout')
+    socket.disconnect()
+  } catch (err) {
+    console.error('logout error')
+  }
   updateUser(null)
 }
 </script>

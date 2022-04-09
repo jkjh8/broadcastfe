@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 
 let user = ref(null)
+let userSocket = ref(null)
 
 function updateUser(args) {
   user.value = args
@@ -13,4 +14,5 @@ function getNickName() {
     return 'N'
   }
 }
-export { user, updateUser, getNickName }
+
+export { user, userSocket, updateUser, getNickName }

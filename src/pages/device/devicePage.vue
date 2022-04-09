@@ -1,9 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { devices, columns } from '@/composables/useDevices'
+import { useQuasar } from 'quasar'
+import { devices, columns } from 'composables/useDevices'
 
-import PageName from '@/components/layout/pageName.vue'
+import PageName from 'components/layout/pageName.vue'
+import DialogAdd from 'components/dialogs/devices/add.vue'
 
+const $q = useQuasar()
 const search = ref('')
 const initPagination = ref({
   sortBy: 'desc',
@@ -14,6 +17,13 @@ const initPagination = ref({
 const totalPages = computed(() => {
   return Math.ceil(devices.value.length / initPagination.value.rowsPerPage)
 })
+
+function fnAdd(items) {
+  $q.dialog({
+    component: DialogAdd,
+    componentProps: items
+  })
+}
 </script>
 
 <template>
@@ -35,6 +45,7 @@ const totalPages = computed(() => {
         name="add_circle"
         color="green-10"
         size="30px"
+        @click="fnAdd()"
       ></q-icon>
     </div>
   </div>

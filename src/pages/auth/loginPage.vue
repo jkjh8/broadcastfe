@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { LocalStorage, useQuasar } from 'quasar'
 import { updateUser } from '@/composables/useAuth'
 import { api } from 'boot/axios'
+import { socket } from 'boot/socketio'
 import { useRouter } from 'vue-router'
 import useNotify from '@/composables/useNotify'
 
@@ -28,6 +29,7 @@ async function onLogin() {
     $q.loading.hide()
     console.log(r)
     if (r.data.status) {
+      socket.connect()
       router.push('/')
     } else {
       notifyWarn({ message: r.data.message })
