@@ -2,9 +2,10 @@
 import { onMounted, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import moment from 'moment'
-import { api } from '@/boot/axios'
+import { api } from 'boot/axios'
 
-import PageName from '@/components/layout/pageName.vue'
+import PageName from 'components/layout/pageName.vue'
+import Confirm from 'components/dialogs/confirm.vue'
 
 const columns = [
   {
@@ -86,9 +87,14 @@ const totalPages = computed(() => {
 
 async function fnSetAdmin(user) {
   $q.dialog({
-    title: '관리자 권한',
-    message: `${user.name}의 관리자 권한이 변경 됩니다.`,
-    cancel: true
+    component: Confirm,
+    componentProps: {
+      icon: 'warning',
+      iconColor: 'yellow',
+      title: '관리자 권한',
+      caption: '관리자 권한을 부여하거나 회수합니다.',
+      message: `${user.email}의 관리자 권한이 변경 됩니다.`
+    }
   }).onOk(async () => {
     await api.get(`/auth/setadmin?id=${user._id}&admin=${!user.admin}`)
     await getUsers()
@@ -97,9 +103,14 @@ async function fnSetAdmin(user) {
 
 async function fnDeleteUser(user) {
   $q.dialog({
-    title: '사용자 삭제',
-    message: `${user.name}의 사용자 계정을 삭제 하시겠습니까?`,
-    cancel: true
+    component: Confirm,
+    componentProps: {
+      icon: 'warning',
+      iconColor: 'red',
+      title: '사용자 계정 삭제',
+      caption: '사용자 계정을 삭제합니다.',
+      message: `${user.email} 계정을 삭제 하시겠습니까?`
+    }
   }).onOk(async () => {
     await api.get(`/auth/deleteuser?id=${user._id}`)
     await getUsers()

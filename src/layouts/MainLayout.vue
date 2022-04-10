@@ -25,7 +25,7 @@ onBeforeMount(() => {
     <q-header style="background: #fff">
       <div
         class="bg-white text-grey-10 row justify-between items-center"
-        style="height: 3.5rem; margin: 0 5%"
+        style="height: 3.5rem; padding: 0 5%"
       >
         <div class="row no-wrap items-center q-gutter-x-md">
           <!-- home -->
@@ -54,7 +54,9 @@ onBeforeMount(() => {
     </q-header>
 
     <q-page-container>
-      <router-view />
+      <div class="page">
+        <router-view />
+      </div>
     </q-page-container>
   </q-layout>
 </template>
