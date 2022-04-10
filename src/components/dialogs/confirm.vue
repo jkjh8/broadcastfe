@@ -17,7 +17,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card class="q-dialog-plugin" style="border-radius: 8px">
       <q-card-section class="row no-wrap items-center">
-        <div v-if="icon" avatar class="q-mr-md">
+        <div v-if="icon" class="q-mr-md">
           <q-icon
             :name="icon"
             :color="iconColor ? iconColor : 'primary'"
