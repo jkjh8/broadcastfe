@@ -1,10 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { devices, columns } from 'composables/useDevices'
+import { api } from 'boot/axios'
+import { devices, columns, getDevices } from 'composables/useDevices'
 
 import PageName from 'components/layout/pageName.vue'
 import DialogAdd from 'components/dialogs/devices/add.vue'
+import Confirm from 'components/dialogs/confirm'
 
 const $q = useQuasar()
 const search = ref('')
@@ -14,16 +16,30 @@ const initPagination = ref({
   page: 1,
   rowsPerPage: 10
 })
+
 const totalPages = computed(() => {
   return Math.ceil(devices.value.length / initPagination.value.rowsPerPage)
 })
 
-function fnAdd(items) {
+function fnAdd(item) {
   $q.dialog({
     component: DialogAdd,
-    componentProps: items
+    componentProps: item
+  }).onOk(async (device) => {
+    await api.post('/devices', device)
+    getDevices()
   })
 }
+
+function fnDelete(item) {
+  $q.dialog({
+    component
+  })
+}
+
+onMounted(() => {
+  getDevices()
+})
 </script>
 
 <template>
@@ -75,17 +91,24 @@ function fnAdd(items) {
         </q-tr>
       </template>
       <template #body="props">
-        <q-tr :props="props" :class="logLevelColor(props.row.level)">
-          <q-td key="timestamp" :props="props">
-            {{ moment(props.row.timestamp).format('YYYY-MM-DD hh:mm:ss a') }}
+        <q-tr :props="props">
+          <q-td key="index" :props="props">
+            {{ props.row.index }}
           </q-td>
-          <q-td key="level" :props="props">
-            {{ props.row.level }}
+          <q-td key="name" :props="props">
+            {{ props.row.name }}
           </q-td>
-          <q-td key="message" :props="props" style="max-width: 800px">
-            <div>
-              {{ props.row.message }}
-            </div>
+          <q-td key="ipaddress" :props="props">
+            {{ props.row.ipaddress }}
+          </q-td>
+          <q-td key="deviceType" :props="props">
+            {{ props.row.deviceType }}
+          </q-td>
+          <q-td key="mode" :props="props">
+            {{ props.row.mode }}
+          </q-td>
+          <q-td key="actions" :props="props">
+            <q-btn round flat icon="delete" size="sm" color="red-10" />
           </q-td>
         </q-tr>
       </template>

@@ -6,14 +6,11 @@ import { api } from 'boot/axios'
 import { socket } from 'boot/socketio'
 import { useRouter } from 'vue-router'
 import useNotify from '@/composables/useNotify'
+import { required, chkEmail, chkLength } from 'composables/useRules'
 
 const router = useRouter()
 const $q = useQuasar()
 const { notifyInfo, notifyWarn } = useNotify()
-
-const required = (v) => !!v || '필수 입력 항목 입니다.'
-const chkEmail = (v) => /.+@.+\..+/.test(v) || '올바른 형식이 아닙니다'
-const chkLength = (v) => v.length >= 8 || '최소 8자 이상 입력하세요'
 
 const userInfo = ref({
   email: '',

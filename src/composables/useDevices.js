@@ -1,7 +1,13 @@
 import { ref } from 'vue'
+import { api } from 'boot/axios'
 
 let devices = ref([])
 let state = ref([])
+
+async function getDevices() {
+  const r = await api.get('devices')
+  devices.value = r.data
+}
 
 const columns = [
   {
@@ -42,4 +48,4 @@ const columns = [
   { name: 'actions', align: 'center', label: 'Actions' }
 ]
 
-export { devices, state, columns }
+export { devices, state, columns, getDevices }

@@ -4,15 +4,17 @@ import { api } from 'boot/axios'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import useNotify from '@/composables/useNotify'
+import {
+  required,
+  chkEmail,
+  chkLength,
+  chkEmailUsed
+} from 'composables/useRules'
 
 const router = useRouter()
 const $q = useQuasar()
 const { notifyInfo, notifyError } = useNotify()
 
-const required = (v) => !!v || '필수 입력 항목 입니다.'
-const chkEmail = (v) => /.+@.+\..+/.test(v) || '올바른 형식이 아닙니다'
-const chkEmailUsed = (v) => fnCheckEmail(v)
-const chkLength = (v) => v.length >= 8 || '최소 8자 이상 입력하세요'
 const chkPassword = (v) =>
   v === userInfo.value.password || '비밀번호가 일치하지 않습니다.'
 
@@ -24,14 +26,6 @@ const userInfo = ref({
 })
 const showPassword = ref(false)
 const showChkPassword = ref(false)
-
-async function fnCheckEmail(value) {
-  const r = await api.get(`/auth/checkEmail?email=${value}`)
-  if (r && r.data.status) {
-    return '이미 사용중인 이메일 입니다.'
-  }
-  return true
-}
 
 async function onRegister() {
   try {

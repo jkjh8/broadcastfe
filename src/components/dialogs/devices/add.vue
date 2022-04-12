@@ -1,6 +1,12 @@
 <script setup>
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, defineExpose } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
+import {
+  required,
+  chkIpaddr,
+  chkInt,
+  chkDeviceIndex
+} from 'composables/useRules'
 
 const props = defineProps({ items: Object })
 const emit = defineEmits([...useDialogPluginComponent.emits])
@@ -8,32 +14,21 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent()
 
 const device = reactive({
-  index: 0,
+  index: null,
   name: '',
   ipaddress: '',
   port: 4444,
   deviceType: '',
-  mode: '',
-  channels: 0,
-  channel: 0,
-  parent: {},
-  children: []
+  mode: ''
 })
 
 function onSubmit() {
-  onDialogOK()
+  onDialogOK(device)
 }
-
-const required = (v) => !!v || '필수 입력 항목 입니다.'
-const ipaddress = (v) =>
-  /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm.test(
-    v
-  ) || 'IPv4 형식이 아닙니다'
-defineExpose({ ...toRefs(device) })
 </script>
 
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
+  <q-dialog ref="dialogRef" persistent @hide="onDialogHide">
     <q-card class="q-dialog-plugin" style="border-radius: 8px">
       <q-form @submit="onSubmit">
         <q-card-section class="row no-wrap items-center">
@@ -51,8 +46,50 @@ defineExpose({ ...toRefs(device) })
         <q-separator />
         <q-card-section>
           <div>
-            <q-input v-model="index" dense filled label="ID" type="number" />
-            <q-input v-model="name" dense filled label="Name" />
+            <q-input
+              v-model="device.index"
+              dense
+              filled
+              label="ID"
+              type="number"
+              lazy-rules
+              :rules="[required, chkInt, chkDeviceIndex]"
+            />
+            <q-input
+              v-model="device.name"
+              dense
+              filled
+              label="Name"
+              lazy-rules
+              :rules="[required]"
+            />
+            <q-input
+              v-model="device.ipaddress"
+              dense
+              filled
+              label="IP Address"
+              lazy-rules
+              :rules="[required, chkIpaddr]"
+            />
+            <q-select
+              v-model="device.deviceType"
+              dense
+              filled
+              label="Device Type"
+              :options="['Q-Sys', 'Barix']"
+              lazy-rules
+              :rules="[required]"
+            />
+            <q-select
+              v-if="device.deviceType === 'Barix'"
+              v-model="device.mode"
+              dense
+              filled
+              label="Mode"
+              :options="['Send', 'Receive']"
+              lazy-rules
+              :rules="[required]"
+            />
           </div>
         </q-card-section>
 
