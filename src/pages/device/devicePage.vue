@@ -3,10 +3,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
 import { devices, columns, getDevices } from 'composables/useDevices'
+import useNotify from 'composables/useNotify'
 
 import PageName from 'components/layout/pageName.vue'
 import DialogAdd from 'components/dialogs/devices/add.vue'
 import Confirm from 'components/dialogs/confirm'
+
+const { notifyError } = useNotify()
 
 const $q = useQuasar()
 const search = ref('')
@@ -24,16 +27,54 @@ const totalPages = computed(() => {
 function fnAdd(item) {
   $q.dialog({
     component: DialogAdd,
-    componentProps: item
+    componentProps: { item: item }
   }).onOk(async (device) => {
-    await api.post('/devices', device)
-    getDevices()
+    $q.loading.show()
+    try {
+      if (device._id) {
+        console.log(await api.post('/device', device))
+      } else {
+        console.log(await api.put('/device', { _id: item._id, ...device }))
+      }
+      getDevices()
+      $q.loading.hide()
+    } catch (err) {
+      $q.loading.hide()
+      notifyError({
+        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.',
+        caption:
+          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+      })
+      console.error(err)
+    }
   })
 }
 
 function fnDelete(item) {
   $q.dialog({
-    component
+    component: Confirm,
+    componentProps: {
+      icon: 'delete',
+      iconColor: 'red-10',
+      title: '디바이스 삭제',
+      caption: '선택된 디바이스를 삭제 합니다.',
+      message: `${item.name}를 삭제 하시겠습니까?`
+    }
+  }).onOk(async () => {
+    $q.loading.show()
+    try {
+      await api.get(`/device/delete?id=${item._id}`)
+      getDevices()
+      $q.loading.hide()
+    } catch (err) {
+      $q.loading.hide()
+      notifyError({
+        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.',
+        caption:
+          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+      })
+      console.error(err)
+    }
   })
 }
 
@@ -108,7 +149,40 @@ onMounted(() => {
             {{ props.row.mode }}
           </q-td>
           <q-td key="actions" :props="props">
-            <q-btn round flat icon="delete" size="sm" color="red-10" />
+            <q-btn
+              round
+              flat
+              icon="delete"
+              size="sm"
+              color="red-10"
+              @click="fnDelete(props.row)"
+            >
+              <q-tooltip
+                class="tooltip-bg"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                삭제
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              round
+              flat
+              icon="edit"
+              size="sm"
+              color="primary"
+              @click="fnAdd(props.row)"
+            >
+              <q-tooltip
+                class="tooltip-bg"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                수정
+              </q-tooltip>
+            </q-btn>
           </q-td>
         </q-tr>
       </template>

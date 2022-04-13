@@ -5,7 +5,7 @@ let devices = ref([])
 let state = ref([])
 
 async function getDevices() {
-  const r = await api.get('devices')
+  const r = await api.get('device')
   devices.value = r.data
 }
 

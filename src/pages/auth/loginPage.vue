@@ -10,7 +10,7 @@ import { required, chkEmail, chkLength } from 'composables/useRules'
 
 const router = useRouter()
 const $q = useQuasar()
-const { notifyInfo, notifyWarn } = useNotify()
+const { notifyError, notifyWarn } = useNotify()
 
 const userInfo = ref({
   email: '',
@@ -24,7 +24,6 @@ async function onLogin() {
     $q.loading.show()
     const r = await api.post('/auth', userInfo.value)
     $q.loading.hide()
-    console.log(r)
     if (r.data.status) {
       socket.connect()
       router.push('/')
@@ -35,6 +34,11 @@ async function onLogin() {
     $q.loading.hide()
     console.error(err)
     updateUser(null)
+    notifyError({
+      message: '서버오류가 발생하였습니다.',
+      caption:
+        '잠시후에 다시 시도해주세요. 문제가 계속 되면 관리자에게 문의해 주세요.'
+    })
   }
 }
 

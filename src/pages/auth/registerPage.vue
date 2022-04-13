@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { api } from 'boot/axios'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
-import useNotify from '@/composables/useNotify'
+import useNotify from 'composables/useNotify'
 import {
   required,
   chkEmail,

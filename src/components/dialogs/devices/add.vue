@@ -1,25 +1,38 @@
 <script setup>
-import { reactive, toRefs, defineExpose } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
 import {
   required,
   chkIpaddr,
   chkInt,
-  chkDeviceIndex
+  chkDeviceIndex,
+  chkIpExists
 } from 'composables/useRules'
 
-const props = defineProps({ items: Object })
+const props = defineProps({ item: Object })
 const emit = defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent()
 
+const edit = ref(false)
 const device = reactive({
   index: null,
   name: '',
   ipaddress: '',
-  port: 4444,
   deviceType: '',
   mode: ''
+})
+3575
+
+onMounted(() => {
+  if (props.item) {
+    ;(device.index = props.item.index),
+      (device.name = props.item.name),
+      (device.ipaddress = props.item.ipaddress),
+      (device.deviceType = props.item.deviceType),
+      (device.mode = props.item.mode)
+    edit.value = true
+  }
 })
 
 function onSubmit() {
@@ -52,6 +65,7 @@ function onSubmit() {
               filled
               label="ID"
               type="number"
+              :disable="edit"
               lazy-rules
               :rules="[required, chkInt, chkDeviceIndex]"
             />
@@ -68,8 +82,9 @@ function onSubmit() {
               dense
               filled
               label="IP Address"
+              :disable="edit"
               lazy-rules
-              :rules="[required, chkIpaddr]"
+              :rules="[required, chkIpaddr, chkIpExists]"
             />
             <q-select
               v-model="device.deviceType"
