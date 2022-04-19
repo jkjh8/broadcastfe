@@ -32,9 +32,9 @@ function fnAdd(item) {
     $q.loading.show()
     try {
       if (device._id) {
-        console.log(await api.post('/device', device))
+        await api.put('/device', { _id: item._id, ...device })
       } else {
-        console.log(await api.put('/device', { _id: item._id, ...device }))
+        await api.post('/device', device)
       }
       getDevices()
       $q.loading.hide()
@@ -76,6 +76,17 @@ function fnDelete(item) {
       console.error(err)
     }
   })
+}
+
+async function refreshDevice(item) {
+  $q.loading.show()
+  try {
+    await api.post('/device/refresh', item)
+    $q.loading.hide()
+  } catch (err) {
+    $q.loading.hide()
+    console.error(err)
+  }
 }
 
 onMounted(() => {
@@ -152,10 +163,10 @@ onMounted(() => {
             <q-btn
               round
               flat
-              icon="delete"
+              icon="info"
               size="sm"
-              color="red-10"
-              @click="fnDelete(props.row)"
+              color="grey"
+              @click="fnAdd(props.row)"
             >
               <q-tooltip
                 class="tooltip-bg"
@@ -163,7 +174,7 @@ onMounted(() => {
                 self="bottom middle"
                 :offset="[10, 10]"
               >
-                삭제
+                상세정보
               </q-tooltip>
             </q-btn>
             <q-btn
@@ -181,6 +192,40 @@ onMounted(() => {
                 :offset="[10, 10]"
               >
                 수정
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              round
+              flat
+              icon="delete"
+              size="sm"
+              color="red-10"
+              @click="fnDelete(props.row)"
+            >
+              <q-tooltip
+                class="tooltip-bg"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                삭제
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              round
+              flat
+              icon="refresh"
+              size="sm"
+              color="green-10"
+              @click="refreshDevice(props.row)"
+            >
+              <q-tooltip
+                class="tooltip-bg"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                새로고침
               </q-tooltip>
             </q-btn>
           </q-td>
