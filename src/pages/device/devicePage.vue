@@ -6,6 +6,7 @@ import { devices, columns, getDevices } from 'composables/useDevices'
 import useNotify from 'composables/useNotify'
 
 import PageName from 'components/layout/pageName.vue'
+import DialogInfo from 'components/dialogs/devices/info'
 import DialogAdd from 'components/dialogs/devices/add.vue'
 import Confirm from 'components/dialogs/confirm'
 
@@ -23,6 +24,13 @@ const initPagination = ref({
 const totalPages = computed(() => {
   return Math.ceil(devices.value.length / initPagination.value.rowsPerPage)
 })
+
+function fnGetInfo(item) {
+  $q.dialog({
+    component: DialogInfo,
+    componentProps: { item: item }
+  })
+}
 
 function fnAdd(item) {
   $q.dialog({
@@ -78,10 +86,21 @@ function fnDelete(item) {
   })
 }
 
-async function refreshDevice(item) {
+async function fnRefreshDevice(item) {
   $q.loading.show()
   try {
     await api.post('/device/refresh', item)
+    $q.loading.hide()
+  } catch (err) {
+    $q.loading.hide()
+    console.error(err)
+  }
+}
+
+async function fnRefreshAll() {
+  $q.loading.show()
+  try {
+    console.log(await api.get('/device/refreshall'))
     $q.loading.hide()
   } catch (err) {
     $q.loading.hide()
@@ -114,6 +133,13 @@ onMounted(() => {
         color="green-10"
         size="30px"
         @click="fnAdd()"
+      ></q-icon>
+      <q-icon
+        style="cursor: pointer"
+        name="refresh"
+        color="green-10"
+        size="30px"
+        @click="fnRefreshAll()"
       ></q-icon>
     </div>
   </div>
@@ -166,7 +192,7 @@ onMounted(() => {
               icon="info"
               size="sm"
               color="grey"
-              @click="fnAdd(props.row)"
+              @click="fnGetInfo(props.row)"
             >
               <q-tooltip
                 class="tooltip-bg"
@@ -217,7 +243,7 @@ onMounted(() => {
               icon="refresh"
               size="sm"
               color="green-10"
-              @click="refreshDevice(props.row)"
+              @click="fnRefreshDevice(props.row)"
             >
               <q-tooltip
                 class="tooltip-bg"
