@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
-import { devices, columns, getDevices } from 'composables/useDevices'
+
 import useNotify from 'composables/useNotify'
 
 import PageName from 'components/layout/pageName.vue'
@@ -10,6 +10,39 @@ import DialogInfo from 'components/dialogs/devices/info'
 import DialogAdd from 'components/dialogs/devices/add.vue'
 import Confirm from 'components/dialogs/confirm'
 
+const columns = [
+  {
+    name: 'index',
+    align: 'center',
+    label: 'Index',
+    field: 'index',
+    sortable: true
+  },
+  {
+    name: 'name',
+    align: 'center',
+    label: 'Name',
+    field: 'name',
+    sortable: true
+  },
+  {
+    name: 'core',
+    align: 'center',
+    label: 'Core',
+    field: 'core',
+    sortable: true
+  },
+  {
+    name: 'channels',
+    align: 'center',
+    label: 'Channels',
+    field: 'channels',
+    sortable: true
+  },
+  { name: 'actions', align: 'center', label: 'Actions' }
+]
+
+const zones = ref([])
 const { notifyError } = useNotify()
 
 const $q = useQuasar()
@@ -22,7 +55,7 @@ const initPagination = ref({
 })
 
 const totalPages = computed(() => {
-  return Math.ceil(devices.value.length / initPagination.value.rowsPerPage)
+  return Math.ceil(zones.value.length / initPagination.value.rowsPerPage)
 })
 
 function fnGetInfo(item) {
@@ -109,16 +142,16 @@ async function fnRefreshAll() {
 }
 
 onMounted(() => {
-  getDevices()
+  // getDevices()
 })
 </script>
 
 <template>
   <div class="row justify-between items-center">
     <PageName
-      name="장치 관리"
-      caption="하드웨어 등록 삭제 및 관리"
-      icon="svguse:icons.svg#serverColorPlus"
+      name="방송구간 관리"
+      caption="방송구간 등록 삭제 및 관리"
+      icon="svguse:icons.svg#mapColor"
     />
     <div class="row no-wrap items-center q-gutter-x-md">
       <q-input v-model="search" filled dense clearable label="Search">
@@ -148,7 +181,7 @@ onMounted(() => {
   <div class="bord">
     <q-table
       style="border-radius: 0.5rem"
-      :rows="devices"
+      :rows="zones"
       :columns="columns"
       flat
       wrap-cells
@@ -173,15 +206,8 @@ onMounted(() => {
           <q-td key="index" :props="props">
             <q-avatar size="28px">
               {{ props.row.index }}
-              <div v-if="props.row.mode !== 'Local'">
-                <q-badge
-                  v-if="props.row.status"
-                  color="green"
-                  rounded
-                  floating
-                />
-                <q-badge v-else color="red-10" rounded floating />
-              </div>
+              <q-badge v-if="props.row.status" color="green" rounded floating />
+              <q-badge v-else color="red-10" rounded floating />
             </q-avatar>
           </q-td>
           <q-td key="name" :props="props">

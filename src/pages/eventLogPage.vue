@@ -129,7 +129,7 @@ onBeforeMount(() => {
             {{ props.row.id }}
           </q-td>
           <q-td key="zones" :props="props">
-            {{ props.row.zones }}
+            {{ props.row.zones.join(',') }}
           </q-td>
           <q-td key="message" :props="props" style="max-width: 800px">
             <div>

@@ -7,6 +7,7 @@ let state = ref([])
 async function getDevices() {
   const r = await api.get('device')
   devices.value = r.data
+  // console.log(r.data)
 }
 
 const columns = [

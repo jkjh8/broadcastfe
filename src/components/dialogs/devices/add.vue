@@ -16,6 +16,7 @@ const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
 
 const edit = ref(false)
 const device = reactive({
+  _id: null,
   index: null,
   name: '',
   ipaddress: '',
@@ -26,7 +27,8 @@ const device = reactive({
 
 onMounted(() => {
   if (props.item) {
-    ;(device.index = props.item.index),
+    ;(device._id = props.item._id),
+      (device.index = props.item.index),
       (device.name = props.item.name),
       (device.ipaddress = props.item.ipaddress),
       (device.deviceType = props.item.deviceType),
@@ -77,15 +79,6 @@ function onSubmit() {
               lazy-rules
               :rules="[required]"
             />
-            <q-input
-              v-model="device.ipaddress"
-              dense
-              filled
-              label="IP Address"
-              :disable="edit"
-              lazy-rules
-              :rules="[required, chkIpaddr, chkIpExists]"
-            />
             <q-select
               v-model="device.deviceType"
               dense
@@ -104,6 +97,26 @@ function onSubmit() {
               :options="['Send', 'Receive']"
               lazy-rules
               :rules="[required]"
+            />
+            <q-select
+              v-if="device.deviceType === 'Q-Sys'"
+              v-model="device.mode"
+              dense
+              filled
+              label="Mode"
+              :options="['Core', 'Local']"
+              lazy-rules
+              :rules="[required]"
+            />
+            <q-input
+              v-if="device.mode !== 'Local'"
+              v-model="device.ipaddress"
+              dense
+              filled
+              label="IP Address"
+              :disable="edit"
+              lazy-rules
+              :rules="[required, chkIpaddr, chkIpExists]"
             />
           </div>
         </q-card-section>

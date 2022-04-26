@@ -1,5 +1,8 @@
 <template>
   <div style="padding-top: 5px">
+    <q-btn class="q-px-md q-py-sm" style="border-radius: 10px" flat to="/zones">
+      <div>Zones</div>
+    </q-btn>
     <q-btn
       class="q-px-md q-py-sm"
       style="border-radius: 10px"

@@ -3,7 +3,7 @@ const props = defineProps({ item: Object, status: Object })
 </script>
 
 <template>
-  <div v-if="status && item.mode === 'Receive'">
+  <div v-if="status">
     <q-list>
       <q-item>
         <q-item-section>
