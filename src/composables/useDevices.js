@@ -3,11 +3,30 @@ import { api } from 'boot/axios'
 
 let devices = ref([])
 let state = ref([])
+let sender = ref([])
+let reciver = ref([])
 
 async function getDevices() {
   const r = await api.get('device')
   devices.value = r.data
+  sortDevices(r.data)
   // console.log(r.data)
+}
+
+function sortDevices(args) {
+  sender.value = []
+  reciver.value = []
+  for (let i = 0; i < args.length; i++) {
+    if (args[i].deviceType === 'Q-Sys' && args[i].mode !== 'Local') {
+      sender.value.push(args[i])
+    } else {
+      if (args[i].mode === 'Send') {
+        sender.value.push(args[i])
+      } else {
+        reciver.value.push(args[i])
+      }
+    }
+  }
 }
 
 const columns = [
@@ -49,4 +68,4 @@ const columns = [
   { name: 'actions', align: 'center', label: 'Actions' }
 ]
 
-export { devices, state, columns, getDevices }
+export { devices, state, sender, reciver, columns, getDevices }

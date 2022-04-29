@@ -27,7 +27,15 @@ export const chkInt = (v) => v > 0 || '0 보다 큰 숫자를 입력하세요'
 export const chkDeviceIndex = async (v) => {
   const r = await api.get(`/device/exists?index=${v}`)
   if (r && r.data.result) {
-    return '이미 사용중인 아이디 입니다.'
+    return '이미 사용중인 인덱스 입니다.'
+  }
+  return true
+}
+
+export const chkZoneIndex = async (v) => {
+  const r = await api.get(`/zones/exists?index=${v}`)
+  if (r && r.data.result) {
+    return '이미 사용중인 인덱스 입니다.'
   }
   return true
 }

@@ -2,12 +2,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
+import { getDevices } from 'composables/useDevices'
 
 import useNotify from 'composables/useNotify'
 
 import PageName from 'components/layout/pageName.vue'
 import DialogInfo from 'components/dialogs/devices/info'
-import DialogAdd from 'components/dialogs/devices/add.vue'
+import DialogAdd from 'components/dialogs/zones/add.vue'
 import Confirm from 'components/dialogs/confirm'
 
 const columns = [
@@ -142,7 +143,7 @@ async function fnRefreshAll() {
 }
 
 onMounted(() => {
-  // getDevices()
+  getDevices()
 })
 </script>
 
