@@ -79,7 +79,7 @@ function fnAdd(item) {
       } else {
         await api.post('/zones', device)
       }
-      getDevices()
+      getZones()
       $q.loading.hide()
     } catch (err) {
       $q.loading.hide()
@@ -107,7 +107,7 @@ function fnDelete(item) {
     $q.loading.show()
     try {
       await api.get(`/zones/delete?id=${item._id}`)
-      getDevices()
+      getZones()
       $q.loading.hide()
     } catch (err) {
       $q.loading.hide()

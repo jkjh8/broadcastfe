@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
+import { socket } from 'boot/socketio'
 import { devices, columns, getDevices } from 'composables/useDevices'
 import useNotify from 'composables/useNotify'
 
@@ -9,6 +10,8 @@ import PageName from 'components/layout/pageName.vue'
 import DialogInfo from 'components/dialogs/devices/info'
 import DialogAdd from 'components/dialogs/devices/add.vue'
 import Confirm from 'components/dialogs/confirm'
+
+let timer = ref(null)
 
 const { notifyError } = useNotify()
 
@@ -110,6 +113,17 @@ async function fnRefreshAll() {
 
 onMounted(() => {
   getDevices()
+  timer.value = setInterval(() => {
+    getDevices()
+  }, 10000)
+  // socket.emit('devicesConnect')
+  // socket.join('devices')
+})
+
+onUnmounted(() => {
+  clearInterval(timer.value)
+  // socket.emit('devicesDisconnect')
+  // socket.leave('devices')
 })
 </script>
 

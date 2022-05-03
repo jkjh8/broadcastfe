@@ -111,7 +111,7 @@ function onSubmit() {
               :rules="[required]"
             />
             <q-select
-              v-if="device.deviceType === 'Q-Sys'"
+              v-if="device.deviceType === 'Q-Sys' && device.mode !== 'Local'"
               v-model="device.model"
               dense
               filled
