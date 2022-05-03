@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
 import { getDevices } from 'composables/useDevices'
+import { zones, getZones } from 'composables/useZones'
 
 import useNotify from 'composables/useNotify'
 
@@ -10,6 +11,7 @@ import PageName from 'components/layout/pageName.vue'
 import DialogInfo from 'components/dialogs/devices/info'
 import DialogAdd from 'components/dialogs/zones/add.vue'
 import Confirm from 'components/dialogs/confirm'
+import SetChannels from 'components/dialogs/zones/channels'
 
 const columns = [
   {
@@ -43,7 +45,6 @@ const columns = [
   { name: 'actions', align: 'center', label: 'Actions' }
 ]
 
-const zones = ref([])
 const { notifyError } = useNotify()
 
 const $q = useQuasar()
@@ -74,9 +75,9 @@ function fnAdd(item) {
     $q.loading.show()
     try {
       if (device._id) {
-        await api.put('/device', { _id: item._id, ...device })
+        await api.put('/zones', { _id: item._id, ...device })
       } else {
-        await api.post('/device', device)
+        await api.post('/zones', device)
       }
       getDevices()
       $q.loading.hide()
@@ -105,7 +106,7 @@ function fnDelete(item) {
   }).onOk(async () => {
     $q.loading.show()
     try {
-      await api.get(`/device/delete?id=${item._id}`)
+      await api.get(`/zones/delete?id=${item._id}`)
       getDevices()
       $q.loading.hide()
     } catch (err) {
@@ -144,6 +145,7 @@ async function fnRefreshAll() {
 
 onMounted(() => {
   getDevices()
+  getZones()
 })
 </script>
 
@@ -207,21 +209,25 @@ onMounted(() => {
           <q-td key="index" :props="props">
             <q-avatar size="28px">
               {{ props.row.index }}
-              <q-badge v-if="props.row.status" color="green" rounded floating />
-              <q-badge v-else color="red-10" rounded floating />
+              <!-- <q-badge v-if="props.row.status" color="green" rounded floating />
+              <q-badge v-else color="red-10" rounded floating /> -->
             </q-avatar>
           </q-td>
           <q-td key="name" :props="props">
             {{ props.row.name }}
           </q-td>
-          <q-td key="ipaddress" :props="props">
-            {{ props.row.ipaddress }}
+          <q-td key="core" :props="props">
+            <q-item dense>
+              <q-item-section>
+                <q-item-label>{{ props.row.core.name }}</q-item-label>
+                <q-item-label caption>{{
+                  props.row.core.ipaddress
+                }}</q-item-label>
+              </q-item-section>
+            </q-item>
           </q-td>
-          <q-td key="deviceType" :props="props">
-            {{ props.row.deviceType }}
-          </q-td>
-          <q-td key="mode" :props="props">
-            {{ props.row.mode }}
+          <q-td key="channels" :props="props">
+            {{ props.row.channels }}
           </q-td>
           <q-td key="actions" :props="props">
             <q-btn

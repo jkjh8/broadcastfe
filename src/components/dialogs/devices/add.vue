@@ -21,7 +21,8 @@ const device = reactive({
   name: '',
   ipaddress: '',
   deviceType: '',
-  mode: ''
+  mode: '',
+  model: ''
 })
 3575
 
@@ -32,7 +33,8 @@ onMounted(() => {
       (device.name = props.item.name),
       (device.ipaddress = props.item.ipaddress),
       (device.deviceType = props.item.deviceType),
-      (device.mode = props.item.mode)
+      (device.mode = props.item.mode),
+      (device.model = props.item.model)
     edit.value = true
   }
 })
@@ -105,6 +107,16 @@ function onSubmit() {
               filled
               label="Mode"
               :options="['Core', 'Local']"
+              lazy-rules
+              :rules="[required]"
+            />
+            <q-select
+              v-if="device.deviceType === 'Q-Sys'"
+              v-model="device.model"
+              dense
+              filled
+              label="Model"
+              :options="['110f', '510i']"
               lazy-rules
               :rules="[required]"
             />

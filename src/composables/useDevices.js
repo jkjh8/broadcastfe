@@ -7,7 +7,7 @@ let sender = ref([])
 let reciver = ref([])
 
 async function getDevices() {
-  const r = await api.get('device')
+  const r = await api.get('/device')
   devices.value = r.data
   sortDevices(r.data)
   // console.log(r.data)

@@ -2,74 +2,36 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
 import { sender, reciver, getDevices } from 'composables/useDevices'
-import {
-  required,
-  chkIpaddr,
-  chkInt,
-  chkDeviceIndex,
-  chkZoneIndex,
-  chkIpExists
-} from 'composables/useRules'
-
-import SetChannels from 'components/dialogs/zones/channels'
-
-const $q = useQuasar()
 
 const props = defineProps({ item: Object })
 const emit = defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent()
-const options = ref(sender.value)
-const edit = ref(false)
-const zone = reactive({
-  _id: null,
-  index: null,
-  core: null,
-  name: '',
-  channels: 0,
-  children: []
-})
+const options = ref(reciver.value)
+const chList = ref([])
 
 onMounted(() => {
-  getDevices()
-  if (props.item) {
-    ;(zone._id = props.item._id),
-      (zone.index = props.item.index),
-      (zone.name = props.item.name),
-      (zone.core = props.item.core),
-      (zone.channels = props.item.channels),
-      (zone.children = props.item.children)
-    edit.value = true
+  if (props.item.children.length > 0) {
+    chList.value = props.item.children
+  } else {
+    chList.value = new Array(Number(props.item.channels))
   }
 })
-
-function fnUpdateChannels() {
-  zone.children = new Array(Number(zone.channels))
-}
 
 function fnFilter(val, update) {
   if (!val) {
     update(() => {
-      options.value = sender.value
+      options.value = reciver.value
     })
   } else {
     update(() => {
-      options.value = sender.value.filter((v) => v.name.indexOf(val) > -1)
+      options.value = reciver.value.filter((v) => v.name.indexOf(val) > -1)
     })
   }
 }
 
-function fnSetChannels() {
-  $q.dialog({
-    component: SetChannels,
-    componentProps: { item: zone }
-  }).onOk((items) => {
-    console.log(items)
-  })
-}
-
 function onSubmit() {
-  onDialogOK(zone)
+  onDialogOK(chList.value)
 }
 </script>
 
@@ -85,40 +47,20 @@ function onSubmit() {
           />
           <q-item-section>
             <q-item-label class="text-bold" style="font-size: 18px">
-              하드웨어 추가/수정
+              {{ item.name }} 채널 셋업
             </q-item-label>
           </q-item-section>
         </q-card-section>
         <q-separator />
-        <q-card-section>
-          <div>
-            <q-input
-              v-model="zone.index"
-              dense
-              filled
-              label="Index"
-              type="number"
-              :disable="edit"
-              lazy-rules
-              :rules="[required, chkInt, chkZoneIndex]"
-            />
-            <q-input
-              v-model="zone.name"
-              dense
-              filled
-              label="Name"
-              lazy-rules
-              :rules="[required]"
-            />
+        <q-card-section class="q-gutter-y-md">
+          <div v-for="(zone, idx) in chList" :key="zone">
             <q-select
-              v-model="zone.core"
+              v-model="chList[idx]"
               dense
               filled
               use-input
-              label="Core"
+              label="방송구간"
               :options="options"
-              lazy-rules
-              :rules="[required]"
               emit-value
               map-options
               option-value="_id"
@@ -139,24 +81,6 @@ function onSubmit() {
                 </q-item>
               </template>
             </q-select>
-            <q-input
-              v-model="zone.channels"
-              dense
-              filled
-              label="Channels"
-              lazy-rules
-              type="number"
-              :rules="[required, chkInt]"
-              @update:model-value="fnUpdateChannels"
-            />
-            <q-btn
-              v-if="zone.channels"
-              unelevated
-              color="primary"
-              class="full-width"
-              label="채널 설정"
-              @click="fnSetChannels"
-            ></q-btn>
           </div>
         </q-card-section>
 

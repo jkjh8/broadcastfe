@@ -26,7 +26,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <q-dialog ref="dialogRef" persistent @hide="onDialogHide">
+  <q-dialog ref="dialogRef" @hide="onDialogHide">
     <q-card class="q-dialog-plugin" style="border-radius: 8px">
       <q-card-section class="row no-wrap items-center">
         <q-icon
