@@ -21,10 +21,6 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: 'devicelog',
-        component: () => import('pages/admin/deviceLogPage.vue')
-      },
-      {
         path: 'usermanagement',
         component: () => import('pages/admin/usersPage.vue')
       }

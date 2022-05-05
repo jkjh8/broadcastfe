@@ -48,20 +48,6 @@
 
       <q-menu :offset="[0, 20]">
         <q-list separator style="min-width: 300px">
-          <q-item clickable to="/admin/devicelog">
-            <q-item-section avatar>
-              <q-avatar
-                style="border: solid 1px #eee"
-                rounded
-                icon="svguse:icons.svg#serverColorInfo"
-              ></q-avatar>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label> 관리자 로그 </q-item-label>
-              <q-item-label caption> 하드웨어 및 관리자 로그</q-item-label>
-            </q-item-section>
-          </q-item>
-
           <q-item clickable to="/admin/usermanagement">
             <q-item-section avatar>
               <q-avatar

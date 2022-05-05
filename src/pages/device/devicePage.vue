@@ -74,7 +74,9 @@ function fnDelete(item) {
   }).onOk(async () => {
     $q.loading.show()
     try {
-      await api.get(`/device/delete?id=${item._id}`)
+      await api.get(
+        `/device/delete?id=${item._id}&name=${item.name}&ipaddress=${item.ipaddreess}`
+      )
       getDevices()
       $q.loading.hide()
     } catch (err) {

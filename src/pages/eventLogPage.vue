@@ -56,13 +56,20 @@ async function getEventLogs() {
 }
 
 function logLevelColor(level) {
-  if (level === 'warn') {
-    return 'bg-yellow text-black'
-  } else if (level === 'error') {
-    return 'bg-red text-white'
-  } else {
-    return 'bg-white text-black'
+  let color
+  switch (level) {
+    case 'warn':
+    case 'admin_warn':
+      color = 'bg-yellow text-black'
+      break
+    case 'error':
+    case 'admin_error':
+      color = 'bg-red text-white'
+      break
+    default:
+      color = 'bg-white text-black'
   }
+  return color
 }
 
 onBeforeMount(() => {
@@ -123,7 +130,7 @@ onBeforeMount(() => {
             {{ moment(props.row.createdAt).format('YYYY-MM-DD hh:mm:ss a') }}
           </q-td>
           <q-td key="priority" :props="props">
-            {{ props.row.priority }}
+            {{ props.row.priority.toUpperCase() }}
           </q-td>
           <q-td key="id" :props="props">
             {{ props.row.id }}
