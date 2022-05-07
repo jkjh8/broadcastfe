@@ -182,7 +182,25 @@ onMounted(() => {
 
   <!-- Table -->
   <div class="bord">
-    <q-table
+    <q-list>
+      <div v-for="zone in zones" :key="zone.index">
+        <q-expansion-item expand-separator default-opened>
+          <template #header>
+            <q-item-section avatar>
+              <q-icon name="svguse:icons.svg#serverColor" color="primary" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ zone.name }}</q-item-label>
+              <q-item-label caption>{{ zone.core.ipaddress }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn></q-btn>
+            </q-item-section>
+          </template>
+        </q-expansion-item>
+      </div>
+    </q-list>
+    <!-- <q-table
       style="border-radius: 0.5rem"
       :rows="zones"
       :columns="columns"
@@ -209,8 +227,6 @@ onMounted(() => {
           <q-td key="index" :props="props">
             <q-avatar size="28px">
               {{ props.row.index }}
-              <!-- <q-badge v-if="props.row.status" color="green" rounded floating />
-              <q-badge v-else color="red-10" rounded floating /> -->
             </q-avatar>
           </q-td>
           <q-td key="name" :props="props">
@@ -301,7 +317,7 @@ onMounted(() => {
           </q-td>
         </q-tr>
       </template>
-    </q-table>
+    </q-table> -->
   </div>
   <div class="q-mt-md row justify-center">
     <q-pagination
