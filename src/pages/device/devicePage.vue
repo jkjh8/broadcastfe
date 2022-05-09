@@ -82,7 +82,7 @@ function fnDelete(item) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.',
+        message: '디바이스 삭제 중 오류가 발생하였습니다.',
         caption:
           '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
       })

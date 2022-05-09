@@ -85,7 +85,7 @@ function onSubmit() {
           />
           <q-item-section>
             <q-item-label class="text-bold" style="font-size: 18px">
-              하드웨어 추가/수정
+              방송구간 추가/수정
             </q-item-label>
           </q-item-section>
         </q-card-section>
@@ -149,14 +149,14 @@ function onSubmit() {
               :rules="[required, chkInt]"
               @update:model-value="fnUpdateChannels"
             />
-            <q-btn
+            <!-- <q-btn
               v-if="zone.channels"
               unelevated
               color="primary"
               class="full-width"
               label="채널 설정"
               @click="fnSetChannels"
-            ></q-btn>
+            ></q-btn> -->
           </div>
         </q-card-section>
 

@@ -1,7 +1,47 @@
 <script setup>
 import { ref } from 'vue'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router'
+import { api } from 'boot/axios'
 import { user } from '@/composables/useAuth.js'
 import moment from 'moment'
+import Confirm from 'components/dialogs/confirm'
+import useNotify from 'composables/useNotify'
+
+const { notifyError } = useNotify()
+
+const $q = useQuasar()
+const router = useRouter()
+
+function fnDelete() {
+  $q.dialog({
+    component: Confirm,
+    componentProps: {
+      icon: 'delete',
+      iconColor: 'red-10',
+      title: '계정 탈퇴',
+      caption: '사용자 계정 삭제',
+      message: '정말 탈퇴 하시겠습니까?'
+    }
+  }).onOk(async () => {
+    $q.loading.show()
+    try {
+      await api.get(
+        `/auth/deleteuser?id=${user.value._id}&name=${user.value.name}&email=${user.value.email}`
+      )
+      $q.loading.hide()
+      router.push('/')
+    } catch (err) {
+      $q.loading.hide()
+      notifyError({
+        message: '사용자 계정 삭제 중 오류가 발생하였습니다.',
+        caption:
+          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+      })
+      console.error(err)
+    }
+  })
+}
 </script>
 
 <template>
@@ -82,6 +122,11 @@ import moment from 'moment'
           </q-item>
         </q-list>
       </q-card-section>
+      <q-card-actions align="right">
+        <div>
+          <q-btn flat color="red" label="탈퇴하기" @click="fnDelete"></q-btn>
+        </div>
+      </q-card-actions>
     </q-card>
   </div>
 </template>

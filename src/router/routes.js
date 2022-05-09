@@ -12,9 +12,14 @@ const routes = [
       {
         path: 'register',
         component: () => import('pages/auth/registerPage.vue')
-      },
-      { path: 'user', component: () => import('pages/auth/userPage.vue') }
+      }
+      // { path: 'user', component: () => import('pages/auth/userPage.vue') }
     ]
+  },
+  {
+    path: '/auth/user',
+    component: () => import('layouts/MainLayout'),
+    children: [{ path: '', component: () => import('pages/auth/userPage') }]
   },
   {
     path: '/admin',

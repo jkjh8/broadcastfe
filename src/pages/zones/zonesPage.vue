@@ -8,42 +8,9 @@ import { zones, getZones } from 'composables/useZones'
 import useNotify from 'composables/useNotify'
 
 import PageName from 'components/layout/pageName.vue'
-import DialogInfo from 'components/dialogs/devices/info'
 import DialogAdd from 'components/dialogs/zones/add.vue'
 import Confirm from 'components/dialogs/confirm'
-import SetChannels from 'components/dialogs/zones/channels'
-
-const columns = [
-  {
-    name: 'index',
-    align: 'center',
-    label: 'Index',
-    field: 'index',
-    sortable: true
-  },
-  {
-    name: 'name',
-    align: 'center',
-    label: 'Name',
-    field: 'name',
-    sortable: true
-  },
-  {
-    name: 'core',
-    align: 'center',
-    label: 'Core',
-    field: 'core',
-    sortable: true
-  },
-  {
-    name: 'channels',
-    align: 'center',
-    label: 'Channels',
-    field: 'channels',
-    sortable: true
-  },
-  { name: 'actions', align: 'center', label: 'Actions' }
-]
+import LocalAdd from 'components/dialogs/zones/addLocal'
 
 const { notifyError } = useNotify()
 
@@ -59,13 +26,6 @@ const initPagination = ref({
 const totalPages = computed(() => {
   return Math.ceil(zones.value.length / initPagination.value.rowsPerPage)
 })
-
-function fnGetInfo(item) {
-  $q.dialog({
-    component: DialogInfo,
-    componentProps: { item: item }
-  })
-}
 
 function fnAdd(item) {
   $q.dialog({
@@ -84,7 +44,7 @@ function fnAdd(item) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.',
+        message: '방송구간 추가(수정) 중 오류가 발생하였습니다.',
         caption:
           '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
       })
@@ -99,20 +59,20 @@ function fnDelete(item) {
     componentProps: {
       icon: 'delete',
       iconColor: 'red-10',
-      title: '디바이스 삭제',
-      caption: '선택된 디바이스를 삭제 합니다.',
-      message: `${item.name}를 삭제 하시겠습니까?`
+      title: '방송구간 삭제',
+      caption: '선택된 방송구간을 삭제 합니다.',
+      message: `${item.name}를(을) 삭제 하시겠습니까?`
     }
   }).onOk(async () => {
     $q.loading.show()
     try {
-      await api.get(`/zones/delete?id=${item._id}`)
+      await api.get(`/zones/delete?id=${item._id}$name=${item.name}`)
       getZones()
       $q.loading.hide()
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.',
+        message: '방송구간 삭제 중 오류가 발생하였습니다.',
         caption:
           '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
       })
@@ -121,26 +81,29 @@ function fnDelete(item) {
   })
 }
 
-async function fnRefreshDevice(item) {
-  $q.loading.show()
-  try {
-    await api.post('/device/refresh', item)
-    $q.loading.hide()
-  } catch (err) {
-    $q.loading.hide()
-    console.error(err)
-  }
-}
-
-async function fnRefreshAll() {
-  $q.loading.show()
-  try {
-    console.log(await api.get('/device/refreshall'))
-    $q.loading.hide()
-  } catch (err) {
-    $q.loading.hide()
-    console.error(err)
-  }
+function fnAddLocal(item) {
+  $q.dialog({
+    component: LocalAdd,
+    componentProps: { item: item }
+  }).onOk(async (childrens) => {
+    try {
+      $q.loading.show()
+      await api.put('/zones/addchildrens', {
+        id: item._id,
+        childrens: childrens
+      })
+      getZones()
+      $q.loading.hide()
+    } catch (err) {
+      $q.loading.hide()
+      notifyError({
+        message: '방송구간 삭제 중 오류가 발생하였습니다.',
+        caption:
+          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+      })
+      console.error(err)
+    }
+  })
 }
 
 onMounted(() => {
@@ -166,25 +129,22 @@ onMounted(() => {
       <q-icon
         style="cursor: pointer"
         name="add_circle"
-        color="green-10"
+        color="primary"
         size="30px"
         @click="fnAdd()"
-      ></q-icon>
-      <q-icon
-        style="cursor: pointer"
-        name="refresh"
-        color="green-10"
-        size="30px"
-        @click="fnRefreshAll()"
       ></q-icon>
     </div>
   </div>
 
   <!-- Table -->
-  <div class="bord">
-    <q-list>
+  <div v-if="zones.length" class="bord">
+    <q-list style="overflow: hidden">
       <div v-for="zone in zones" :key="zone.index">
-        <q-expansion-item expand-separator default-opened>
+        <q-expansion-item
+          expand-separator
+          default-opened
+          header-class="bg-grey-2"
+        >
           <template #header>
             <q-item-section avatar>
               <q-icon name="svguse:icons.svg#serverColor" color="primary" />
@@ -194,138 +154,171 @@ onMounted(() => {
               <q-item-label caption>{{ zone.core.ipaddress }}</q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-btn></q-btn>
+              <div class="row">
+                <q-btn
+                  round
+                  flat
+                  icon="edit"
+                  color="primary"
+                  @click.prevent.stop="fnAdd(zone)"
+                >
+                  <q-tooltip
+                    class="tooltip-bg"
+                    anchor="top middle"
+                    self="bottom middle"
+                    :offset="[10, 10]"
+                  >
+                    수정
+                  </q-tooltip>
+                </q-btn>
+                <q-btn
+                  round
+                  flat
+                  icon="delete"
+                  color="red"
+                  @click.prevent.stop="fnDelete(zone)"
+                >
+                  <q-tooltip
+                    class="tooltip-bg"
+                    anchor="top middle"
+                    self="bottom middle"
+                    :offset="[10, 10]"
+                  >
+                    삭제
+                  </q-tooltip>
+                </q-btn>
+                <q-separator class="q-mx-md" vertical />
+                <q-btn
+                  round
+                  flat
+                  icon="add"
+                  color="primary"
+                  @click.prevent.stop="fnAddLocal(zone)"
+                >
+                  <q-tooltip
+                    class="tooltip-bg"
+                    anchor="top middle"
+                    self="bottom middle"
+                    :offset="[10, 10]"
+                  >
+                    방송지역 추가
+                  </q-tooltip>
+                </q-btn>
+              </div>
             </q-item-section>
           </template>
+          <div class="fit row wrap q-pa-sm q-gutter-sm">
+            <div
+              v-for="(children, idx) in zone.children"
+              :key="idx"
+              class="local"
+            >
+              <div v-if="children">
+                <q-card>
+                  <q-card-section>
+                    <div v-if="children.ipaddress" class="led"></div>
+                    <div>Channel: {{ idx + 1 }}</div>
+                    <div class="textOver">
+                      Name: {{ children.name }}
+                      <q-tooltip
+                        class="tooltip-bg"
+                        anchor="top middle"
+                        self="bottom middle"
+                        :offset="[10, 10]"
+                        :delay="500"
+                      >
+                        {{ children.name }}
+                      </q-tooltip>
+                      <div v-if="children.ipaddress">
+                        IP: {{ children.ipaddress }}
+                      </div>
+                      <div v-else>Local</div>
+                    </div>
+                  </q-card-section>
+                  <q-card-actions align="right" class="q-gutter-x-xs">
+                    <q-icon
+                      class="cursor: pointer"
+                      name="edit"
+                      size="xs"
+                      color="primary"
+                    >
+                      <q-tooltip
+                        class="tooltip-bg"
+                        anchor="top middle"
+                        self="bottom middle"
+                        :offset="[10, 10]"
+                      >
+                        수정
+                      </q-tooltip>
+                    </q-icon>
+                    <q-icon
+                      class="cursor: pointer"
+                      name="close"
+                      size="sm"
+                      color="red"
+                    >
+                      <q-tooltip
+                        class="tooltip-bg"
+                        anchor="top middle"
+                        self="bottom middle"
+                        :offset="[10, 10]"
+                      >
+                        리셋
+                      </q-tooltip>
+                    </q-icon>
+                  </q-card-actions>
+                </q-card>
+              </div>
+              <div v-else>
+                <q-card>
+                  <q-card-section>
+                    <div>Channel: {{ idx + 1 }}</div>
+                    <div>None</div>
+                  </q-card-section>
+                  <q-card-actions align="right">
+                    <q-icon
+                      class="cursor: pointer"
+                      name="edit"
+                      size="xs"
+                      color="primary"
+                    >
+                      <q-tooltip
+                        class="tooltip-bg"
+                        anchor="top middle"
+                        self="bottom middle"
+                        :offset="[10, 10]"
+                      >
+                        수정
+                      </q-tooltip>
+                    </q-icon>
+                  </q-card-actions>
+                </q-card>
+              </div>
+            </div>
+          </div>
         </q-expansion-item>
       </div>
     </q-list>
-    <!-- <q-table
-      style="border-radius: 0.5rem"
-      :rows="zones"
-      :columns="columns"
-      flat
-      wrap-cells
-      hide-pagination
-      :pagination="initPagination"
-      :filter="search"
-    >
-      <template #header="props">
-        <q-tr class="bg-grey-1" :props="props">
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-            class="text-h6 text-bold"
-          >
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
-      <template #body="props">
-        <q-tr :props="props">
-          <q-td key="index" :props="props">
-            <q-avatar size="28px">
-              {{ props.row.index }}
-            </q-avatar>
-          </q-td>
-          <q-td key="name" :props="props">
-            {{ props.row.name }}
-          </q-td>
-          <q-td key="core" :props="props">
-            <q-item dense>
-              <q-item-section>
-                <q-item-label>{{ props.row.core.name }}</q-item-label>
-                <q-item-label caption>{{
-                  props.row.core.ipaddress
-                }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-td>
-          <q-td key="channels" :props="props">
-            {{ props.row.channels }}
-          </q-td>
-          <q-td key="actions" :props="props">
-            <q-btn
-              round
-              flat
-              icon="info"
-              size="sm"
-              color="grey"
-              @click="fnGetInfo(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                상세정보
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              round
-              flat
-              icon="edit"
-              size="sm"
-              color="primary"
-              @click="fnAdd(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                수정
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              round
-              flat
-              icon="delete"
-              size="sm"
-              color="red-10"
-              @click="fnDelete(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                삭제
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              round
-              flat
-              icon="refresh"
-              size="sm"
-              color="green-10"
-              @click="fnRefreshDevice(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                새로고침
-              </q-tooltip>
-            </q-btn>
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table> -->
-  </div>
-  <div class="q-mt-md row justify-center">
-    <q-pagination
-      v-model="initPagination.page"
-      :max="totalPages"
-      :max-pages="10"
-      direction-links
-      boundary-links
-    />
   </div>
 </template>
+
+<style scoped>
+.local {
+  width: 10rem;
+}
+.textOver {
+  width: 8rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.led {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #00ff00;
+}
+</style>
