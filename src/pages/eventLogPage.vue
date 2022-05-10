@@ -36,6 +36,8 @@ const columns = [
   { name: 'message', align: 'center', label: 'Message', field: 'message' }
 ]
 
+moment.locale('ko')
+
 let eventlog = ref([])
 const page = ref(1)
 const rowsPerPage = ref(10)
