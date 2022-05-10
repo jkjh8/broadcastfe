@@ -5,27 +5,18 @@ import { api } from 'boot/axios'
 import { getDevices } from 'composables/useDevices'
 import { zones, getZones } from 'composables/useZones'
 
-import useNotify from 'composables/useNotify'
-
 import PageName from 'components/layout/pageName.vue'
 import DialogAdd from 'components/dialogs/zones/add.vue'
 import Confirm from 'components/dialogs/confirm'
 import LocalAdd from 'components/dialogs/zones/addLocal'
+import Tooltip from 'components/tooltip'
+import TooltipDelay from 'components/tooltipdelay'
+import IconBtn from 'components/iconBtn'
 
-const { notifyError } = useNotify()
+import useNotify from 'composables/useNotify'
+const { notifyWarn, notifyError } = useNotify()
 
 const $q = useQuasar()
-const search = ref('')
-const initPagination = ref({
-  sortBy: 'desc',
-  descending: false,
-  page: 1,
-  rowsPerPage: 10
-})
-
-const totalPages = computed(() => {
-  return Math.ceil(zones.value.length / initPagination.value.rowsPerPage)
-})
 
 function fnAdd(item) {
   $q.dialog({
@@ -81,16 +72,52 @@ function fnDelete(item) {
   })
 }
 
-function fnAddLocal(item) {
+function fnAddLocal(item, idx) {
+  if (item.channels <= item.children.length && !idx && idx !== 0) {
+    return notifyWarn({
+      message: '설정한 방송 채널 수를 초과 하였습니다.'
+    })
+  }
   $q.dialog({
     component: LocalAdd,
-    componentProps: { item: item }
+    componentProps: { item: item, idx: idx }
   }).onOk(async (childrens) => {
     try {
       $q.loading.show()
       await api.put('/zones/addchildrens', {
         id: item._id,
         childrens: childrens
+      })
+      getZones()
+      $q.loading.hide()
+    } catch (err) {
+      $q.loading.hide()
+      notifyError({
+        message: '방송구간 추가 중 오류가 발생하였습니다.',
+        caption:
+          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+      })
+      console.error(err)
+    }
+  })
+}
+
+function fnDelLocal(zone, idx) {
+  $q.dialog({
+    component: Confirm,
+    componentProps: {
+      icon: 'close',
+      iconColor: 'black',
+      title: '방송구간 삭제',
+      caption: '선택된 방송구간을 삭제 합니다.'
+    }
+  }).onOk(async () => {
+    try {
+      zone.children.splice(idx, 1)
+      $q.loading.show()
+      await api.put('/zones/addchildrens', {
+        id: zone._id,
+        childrens: zone.children
       })
       getZones()
       $q.loading.hide()
@@ -119,24 +146,15 @@ onMounted(() => {
       caption="방송구간 등록 삭제 및 관리"
       icon="svguse:icons.svg#mapColor"
     />
-    <div class="row no-wrap items-center q-gutter-x-md">
-      <q-input v-model="search" filled dense clearable label="Search">
-        <template #append>
-          <q-icon name="search" />
-        </template>
-      </q-input>
-      <q-separator vertical />
-      <q-icon
-        style="cursor: pointer"
-        name="add_circle"
-        color="primary"
-        size="30px"
-        @click="fnAdd()"
-      ></q-icon>
-    </div>
+    <IconBtn
+      name="add_circle"
+      size="30px"
+      msg="방송구역추가"
+      @click="fnAdd()"
+    />
   </div>
 
-  <!-- Table -->
+  <!-- expension item -->
   <div v-if="zones.length" class="bord">
     <q-list style="overflow: hidden">
       <div v-for="zone in zones" :key="zone.index">
@@ -146,67 +164,44 @@ onMounted(() => {
           header-class="bg-grey-2"
         >
           <template #header>
+            <!-- avatar -->
             <q-item-section avatar>
               <q-icon name="svguse:icons.svg#serverColor" color="primary" />
             </q-item-section>
+            <!-- zone name -->
             <q-item-section>
               <q-item-label>{{ zone.name }}</q-item-label>
-              <q-item-label caption>{{ zone.core.ipaddress }}</q-item-label>
+              <q-item-label caption>
+                <a
+                  :href="`http://${zone.core.ipaddress}`"
+                  target="_blank"
+                  @click.stop
+                >
+                  {{ zone.core.ipaddress }}
+                </a>
+              </q-item-label>
             </q-item-section>
+            <!-- function buttons -->
             <q-item-section side>
-              <div class="row">
-                <q-btn
-                  round
-                  flat
-                  icon="edit"
-                  color="primary"
-                  @click.prevent.stop="fnAdd(zone)"
-                >
-                  <q-tooltip
-                    class="tooltip-bg"
-                    anchor="top middle"
-                    self="bottom middle"
-                    :offset="[10, 10]"
-                  >
-                    수정
-                  </q-tooltip>
-                </q-btn>
-                <q-btn
-                  round
-                  flat
-                  icon="delete"
+              <div class="q-gutter-x-md row items-center">
+                <IconBtn name="edit" msg="수정" @click="fnAdd(zone)" />
+                <IconBtn
+                  name="delete"
                   color="red"
-                  @click.prevent.stop="fnDelete(zone)"
-                >
-                  <q-tooltip
-                    class="tooltip-bg"
-                    anchor="top middle"
-                    self="bottom middle"
-                    :offset="[10, 10]"
-                  >
-                    삭제
-                  </q-tooltip>
-                </q-btn>
-                <q-separator class="q-mx-md" vertical />
-                <q-btn
-                  round
-                  flat
-                  icon="add"
-                  color="primary"
-                  @click.prevent.stop="fnAddLocal(zone)"
-                >
-                  <q-tooltip
-                    class="tooltip-bg"
-                    anchor="top middle"
-                    self="bottom middle"
-                    :offset="[10, 10]"
-                  >
-                    방송지역 추가
-                  </q-tooltip>
-                </q-btn>
+                  msg="삭제"
+                  @click="fnDelete(zone)"
+                />
+                <q-separator vertical />
+                <IconBtn
+                  name="add"
+                  msg="방송구역추가"
+                  @click="fnAddLocal(zone)"
+                />
               </div>
             </q-item-section>
           </template>
+
+          <!-- Children -->
           <div class="fit row wrap q-pa-sm q-gutter-sm">
             <div
               v-for="(children, idx) in zone.children"
@@ -215,83 +210,90 @@ onMounted(() => {
             >
               <div v-if="children">
                 <q-card>
-                  <q-card-section>
-                    <div v-if="children.ipaddress" class="led"></div>
-                    <div>Channel: {{ idx + 1 }}</div>
+                  <q-card-section
+                    :class="
+                      children.mode === 'Local' ? 'bg-light-blue' : 'bg-primary'
+                    "
+                    class="row no-wrap justify-between items-center text-white"
+                  >
                     <div class="textOver">
-                      Name: {{ children.name }}
-                      <q-tooltip
-                        class="tooltip-bg"
-                        anchor="top middle"
-                        self="bottom middle"
-                        :offset="[10, 10]"
-                        :delay="500"
-                      >
-                        {{ children.name }}
-                      </q-tooltip>
-                      <div v-if="children.ipaddress">
-                        IP: {{ children.ipaddress }}
-                      </div>
-                      <div v-else>Local</div>
+                      {{ children.name }}
+                      <TooltipDelay :msg="children.name" />
                     </div>
+                    <!-- edit menu -->
+                    <q-icon style="cursor: pointer" name="settings">
+                      <q-menu
+                        style="background: rgba(255, 255, 255, 0.7)"
+                        anchor="center middle"
+                        self="top left"
+                      >
+                        <div class="q-pa-sm q-gutter-x-sm">
+                          <IconBtn
+                            name="edit"
+                            size="xs"
+                            msg="수정"
+                            @click="fnAddLocal(zone, idx)"
+                          />
+                          <IconBtn
+                            name="delete"
+                            size="xs"
+                            color="red-10"
+                            msg="삭제"
+                            @click="fnDelLocal(zone, idx)"
+                          />
+                        </div>
+                      </q-menu>
+                    </q-icon>
                   </q-card-section>
-                  <q-card-actions align="right" class="q-gutter-x-xs">
-                    <q-icon
-                      class="cursor: pointer"
-                      name="edit"
-                      size="xs"
-                      color="primary"
-                    >
-                      <q-tooltip
-                        class="tooltip-bg"
-                        anchor="top middle"
-                        self="bottom middle"
-                        :offset="[10, 10]"
-                      >
-                        수정
-                      </q-tooltip>
-                    </q-icon>
-                    <q-icon
-                      class="cursor: pointer"
-                      name="close"
-                      size="sm"
-                      color="red"
-                    >
-                      <q-tooltip
-                        class="tooltip-bg"
-                        anchor="top middle"
-                        self="bottom middle"
-                        :offset="[10, 10]"
-                      >
-                        리셋
-                      </q-tooltip>
-                    </q-icon>
-                  </q-card-actions>
+                  <!-- child info -->
+                  <q-card-section>
+                    <div>Channel {{ idx + 1 }}</div>
+                    <div v-if="children.ipaddress">
+                      IP:
+                      <a :href="`http://${children.ipaddress}`" target="_blank">
+                        {{ children.ipaddress }}
+                      </a>
+                    </div>
+                    <div v-else>Local</div>
+                  </q-card-section>
                 </q-card>
               </div>
-              <div v-else>
+              <!-- None Card -->
+              <div v-else class="local">
                 <q-card>
+                  <q-card-section
+                    class="bg-blue-grey text-white row no-wrap justify-between items-center"
+                  >
+                    <div>None</div>
+                    <!-- edit menu -->
+                    <q-icon style="cursor: pointer" name="settings">
+                      <q-menu
+                        style="background: rgba(255, 255, 255, 0.7)"
+                        anchor="center middle"
+                        self="top left"
+                      >
+                        <div class="q-pa-sm q-gutter-x-sm">
+                          <IconBtn
+                            name="edit"
+                            size="xs"
+                            msg="수정"
+                            @click="fnAddLocal(zone, idx)"
+                          />
+                          <IconBtn
+                            name="delete"
+                            size="xs"
+                            color="red-10"
+                            msg="삭제"
+                            @click="fnDelLocal(zone, idx)"
+                          />
+                        </div>
+                      </q-menu>
+                    </q-icon>
+                  </q-card-section>
                   <q-card-section>
-                    <div>Channel: {{ idx + 1 }}</div>
+                    <div>Channel {{ idx + 1 }}</div>
                     <div>None</div>
                   </q-card-section>
-                  <q-card-actions align="right">
-                    <q-icon
-                      class="cursor: pointer"
-                      name="edit"
-                      size="xs"
-                      color="primary"
-                    >
-                      <q-tooltip
-                        class="tooltip-bg"
-                        anchor="top middle"
-                        self="bottom middle"
-                        :offset="[10, 10]"
-                      >
-                        수정
-                      </q-tooltip>
-                    </q-icon>
-                  </q-card-actions>
                 </q-card>
               </div>
             </div>
@@ -305,6 +307,7 @@ onMounted(() => {
 <style scoped>
 .local {
   width: 10rem;
+  height: 100%;
 }
 .textOver {
   width: 8rem;
@@ -312,13 +315,7 @@ onMounted(() => {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.led {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: #00ff00;
+.bg-trans {
+  background: rgba(255, 255, 255, 0.5);
 }
 </style>

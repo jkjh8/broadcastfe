@@ -3,26 +3,19 @@ import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
 import { api } from 'boot/axios'
 import { sender, reciver, getDevices } from 'composables/useDevices'
-import {
-  required,
-  chkIpaddr,
-  chkInt,
-  chkDeviceIndex,
-  chkZoneIndex,
-  chkIpExists
-} from 'composables/useRules'
+import { children, chkZoneDebLocal, chkZoneDub } from 'composables/useRules'
+import IconBtn from 'components/iconBtn'
 
 import useNotify from 'composables/useNotify'
 const { notifyWarn, notifyError } = useNotify()
 
 const $q = useQuasar()
 
-const props = defineProps({ item: Object })
+const props = defineProps({ item: Object, idx: Number })
 const emit = defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent()
 const options = ref(reciver.value)
-const children = ref([null])
 const zone = reactive({
   _id: null,
   index: null,
@@ -32,8 +25,12 @@ const zone = reactive({
   children: []
 })
 
+const channel = ref(null)
+
 onMounted(() => {
+  console.log(props)
   getDevices()
+  children.value = [null]
   if (props.item) {
     ;(zone._id = props.item._id),
       (zone.index = props.item.index),
@@ -41,6 +38,12 @@ onMounted(() => {
       (zone.core = props.item.core),
       (zone.channels = props.item.channels),
       (zone.children = props.item.children)
+  }
+  if (props.idx || props.idx === 0) {
+    channel.value = props.idx
+    if (zone.children[props.idx] && zone.children[props.idx]._id) {
+      children.value[0] = zone.children[props.idx]._id
+    }
   }
 })
 
@@ -69,40 +72,14 @@ function delChannel(idx) {
   children.value.splice(idx, 1)
 }
 
-function checkDub(v) {
-  console.log(children.value, v)
-  if (v === null) {
-    return true
-  }
-  const dub = []
-  for (let i = 0; i < children.value.length; i++) {
-    if (children.value[i] === v) {
-      dub.push(v)
-    }
-  }
-  if (dub.length > 1) {
-    return '같은 방송구간 내 중복된 지역이 있습니다.'
-  }
-  return true
-}
+async function onSubmit() {
+  if (channel.value || channel.value === 0) {
+    console.log('zone', channel.value, zone.children[channel])
 
-async function checkOther(v) {
-  if (v === null) {
-    return true
+    zone.children[channel.value] = children.value[0]
+    console.log(zone.children)
+    return onDialogOK(zone.children)
   }
-  try {
-    const r = await api.get(`/zones/existsChildren?id=${v}`)
-    if (r && r.data.result.length) {
-      return '다른 방송구간내 중복된 지역이 있습니다.'
-    }
-  } catch (err) {
-    console.error(err)
-    return '방송구간 확인중 문제가 발생하였습니다.'
-  }
-  return true
-}
-
-function onSubmit() {
   onDialogOK(zone.children.concat(children.value))
 }
 </script>
@@ -118,27 +95,19 @@ function onSubmit() {
             size="sm"
           />
           <q-item-section>
-            <q-item-label class="text-bold" style="font-size: 18px">
+            <q-item-label class="text-bold" style="font-size: 20px">
               방송지역 추가
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn
-              flat
-              round
-              icon="add_circle"
+            <IconBtn
+              v-if="!(channel || channel === 0)"
+              name="add_circle"
+              size="md"
               color="green"
+              msg="채널추가"
               @click="addChannel"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                채널추가
-              </q-tooltip>
-            </q-btn>
+            />
           </q-item-section>
         </q-card-section>
         <q-separator />
@@ -164,10 +133,15 @@ function onSubmit() {
                 dense
                 filled
                 use-input
-                :label="`Channel ${zone.children.length + idx + 1}`"
+                clearable
+                :label="
+                  channel || channel === 0
+                    ? `Channel ${channel + 1}`
+                    : `Channel ${zone.children.length + idx + 1}`
+                "
                 :options="options"
                 lazy-rules
-                :rules="[checkDub, checkOther]"
+                :rules="[chkZoneDebLocal, chkZoneDub]"
                 emit-value
                 map-options
                 option-value="_id"
@@ -196,22 +170,14 @@ function onSubmit() {
                   </q-item>
                 </template>
                 <template #after>
-                  <q-icon
-                    style="cursor: pointer"
+                  <IconBtn
+                    v-if="!(channel || channel === 0)"
                     name="cancel"
                     size="sm"
                     color="red-10"
+                    msg="삭제"
                     @click="delChannel(idx)"
-                  >
-                    <q-tooltip
-                      class="tooltip-bg"
-                      anchor="top middle"
-                      self="bottom middle"
-                      :offset="[10, 10]"
-                    >
-                      삭제
-                    </q-tooltip>
-                  </q-icon>
+                  />
                 </template>
               </q-select>
             </div>

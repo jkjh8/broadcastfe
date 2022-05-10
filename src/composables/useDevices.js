@@ -1,7 +1,9 @@
 import { ref } from 'vue'
 import { api } from 'boot/axios'
 
+let pa = ref(null)
 let devices = ref([])
+let status = ref(null)
 let state = ref([])
 let sender = ref([])
 let reciver = ref([])
@@ -11,6 +13,21 @@ async function getDevices() {
   devices.value = r.data
   sortDevices(r.data)
   // console.log(r.data)
+}
+
+async function getStatus() {
+  const r = await api.get('/device/status')
+  status.value = r.data
+  // console.log(status.value)
+}
+
+async function getPa() {
+  const r = await api.get('/device/pa')
+  const _pa = {}
+  for (const key in r.data) {
+    _pa[key] = JSON.parse(r.data[key])
+  }
+  pa.value = _pa
 }
 
 function sortDevices(args) {
@@ -68,4 +85,15 @@ const columns = [
   { name: 'actions', align: 'center', label: 'Actions' }
 ]
 
-export { devices, state, sender, reciver, columns, getDevices }
+export {
+  pa,
+  devices,
+  status,
+  state,
+  sender,
+  reciver,
+  columns,
+  getDevices,
+  getStatus,
+  getPa
+}

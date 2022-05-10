@@ -50,7 +50,6 @@ async function getEventLogs() {
       rowsPerPage.value
     }&search=${encodeURIComponent(search.value)}`
   )
-  console.log(r)
   eventlog.value = r.data.docs
   totalPages.value = r.data.totalPages
 }

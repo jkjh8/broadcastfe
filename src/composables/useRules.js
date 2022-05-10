@@ -1,5 +1,7 @@
+import { ref } from 'vue'
 import { api } from 'boot/axios'
 
+export const children = ref([])
 export const required = (v) => !!v || '필수 입력 항목 입니다.'
 export const chkEmail = (v) => /.+@.+\..+/.test(v) || '올바른 형식이 아닙니다'
 export const chkLength = (v) => v.length >= 8 || '최소 8자 이상 입력하세요'
@@ -36,6 +38,38 @@ export const chkZoneIndex = async (v) => {
   const r = await api.get(`/zones/exists?index=${v}`)
   if (r && r.data.result) {
     return '이미 사용중인 인덱스 입니다.'
+  }
+  return true
+}
+
+export const chkZoneDebLocal = async (v) => {
+  if (v === null) {
+    return true
+  }
+  const dub = []
+  for (let i = 0; i < children.value.length; i++) {
+    if (children.value[i] === v) {
+      dub.push(v)
+    }
+  }
+  if (dub.length > 1) {
+    return '방송구간 내 중복된 지역이 있습니다.'
+  }
+  return true
+}
+
+export const chkZoneDub = async (v) => {
+  if (v === null) {
+    return true
+  }
+  try {
+    const r = await api.get(`/zones/existsChildren?id=${v}`)
+    if (r && r.data.result.length) {
+      return '방송구간 내 중복된 지역이 있습니다.'
+    }
+  } catch (err) {
+    console.error(err)
+    return '방송구간 확인중 문제가 발생하였습니다.'
   }
   return true
 }

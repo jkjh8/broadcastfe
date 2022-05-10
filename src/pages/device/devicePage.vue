@@ -2,18 +2,25 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
-import { socket } from 'boot/socketio'
-import { devices, columns, getDevices } from 'composables/useDevices'
-import useNotify from 'composables/useNotify'
+// import { socket } from 'boot/socketio'
+import {
+  devices,
+  status,
+  columns,
+  getDevices,
+  getStatus,
+  getPa
+} from 'composables/useDevices'
 
 import PageName from 'components/layout/pageName.vue'
 import DialogInfo from 'components/dialogs/devices/info'
 import DialogAdd from 'components/dialogs/devices/add.vue'
 import Confirm from 'components/dialogs/confirm'
+import IconBtn from 'components/iconBtn'
 
-let timer = ref(null)
-
+import useNotify from 'composables/useNotify'
 const { notifyError } = useNotify()
+let timer = ref(null)
 
 const $q = useQuasar()
 const search = ref('')
@@ -68,8 +75,7 @@ function fnDelete(item) {
       icon: 'delete',
       iconColor: 'red-10',
       title: '디바이스 삭제',
-      caption: '선택된 디바이스를 삭제 합니다.',
-      message: `${item.name}를 삭제 하시겠습니까?`
+      caption: `${item.name} 선택된 디바이스를 삭제 합니다.`
     }
   }).onOk(async () => {
     $q.loading.show()
@@ -105,7 +111,7 @@ async function fnRefreshDevice(item) {
 async function fnRefreshAll() {
   $q.loading.show()
   try {
-    console.log(await api.get('/device/refreshall'))
+    await api.get('/device/refreshall')
     $q.loading.hide()
   } catch (err) {
     $q.loading.hide()
@@ -115,8 +121,11 @@ async function fnRefreshAll() {
 
 onMounted(() => {
   getDevices()
+  getStatus()
   timer.value = setInterval(() => {
-    getDevices()
+    // getDevices()
+    getStatus()
+    getPa()
   }, 10000)
   // socket.emit('devicesConnect')
   // socket.join('devices')
@@ -143,20 +152,20 @@ onUnmounted(() => {
         </template>
       </q-input>
       <q-separator vertical />
-      <q-icon
-        style="cursor: pointer"
+      <IconBtn
         name="add_circle"
         color="green-10"
         size="30px"
+        msg="하드웨어추가"
         @click="fnAdd()"
-      ></q-icon>
-      <q-icon
-        style="cursor: pointer"
+      />
+      <IconBtn
         name="refresh"
         color="green-10"
         size="30px"
+        msg="새로고침"
         @click="fnRefreshAll()"
-      ></q-icon>
+      />
     </div>
   </div>
 
@@ -172,6 +181,7 @@ onUnmounted(() => {
       :pagination="initPagination"
       :filter="search"
     >
+      <!-- Table Header -->
       <template #header="props">
         <q-tr class="bg-grey-1" :props="props">
           <q-th
@@ -184,6 +194,7 @@ onUnmounted(() => {
           </q-th>
         </q-tr>
       </template>
+      <!-- Table Body -->
       <template #body="props">
         <q-tr :props="props">
           <q-td key="index" :props="props">
@@ -191,7 +202,7 @@ onUnmounted(() => {
               {{ props.row.index }}
               <div v-if="props.row.mode !== 'Local'">
                 <q-badge
-                  v-if="props.row.status"
+                  v-if="status && status[props.row.ipaddress] === 'true'"
                   color="green"
                   rounded
                   floating
@@ -207,80 +218,38 @@ onUnmounted(() => {
             {{ props.row.ipaddress }}
           </q-td>
           <q-td key="deviceType" :props="props">
-            {{ props.row.deviceType }}
+            {{ props.row.deviceType.toUpperCase() }}
           </q-td>
           <q-td key="mode" :props="props">
             {{ props.row.mode }}
           </q-td>
-          <q-td key="actions" :props="props">
-            <q-btn
-              round
-              flat
-              icon="info"
-              size="sm"
+          <q-td key="actions" :props="props" class="q-gutter-x-sm">
+            <IconBtn
+              name="info"
+              size="xs"
               color="grey"
+              msg="상세정보"
               @click="fnGetInfo(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                상세정보
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              round
-              flat
-              icon="edit"
-              size="sm"
-              color="primary"
+            />
+            <IconBtn
+              name="edit"
+              size="xs"
+              msg="수정"
               @click="fnAdd(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                수정
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              round
-              flat
-              icon="delete"
-              size="sm"
+            />
+            <IconBtn
+              name="delete"
+              size="xs"
               color="red-10"
+              msg="삭제"
               @click="fnDelete(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                삭제
-              </q-tooltip>
-            </q-btn>
-            <q-btn
-              round
-              flat
-              icon="refresh"
-              size="sm"
-              color="green-10"
+            />
+            <IconBtn
+              name="refresh"
+              size="xs"
+              msg="새로고침"
               @click="fnRefreshDevice(props.row)"
-            >
-              <q-tooltip
-                class="tooltip-bg"
-                anchor="top middle"
-                self="bottom middle"
-                :offset="[10, 10]"
-              >
-                새로고침
-              </q-tooltip>
-            </q-btn>
+            />
           </q-td>
         </q-tr>
       </template>
