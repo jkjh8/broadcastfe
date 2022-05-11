@@ -28,7 +28,6 @@ const zone = reactive({
 const channel = ref(null)
 
 onMounted(() => {
-  console.log(props)
   getDevices()
   children.value = [null]
   if (props.item) {
@@ -72,12 +71,53 @@ function delChannel(idx) {
   children.value.splice(idx, 1)
 }
 
+function chkNetworkChannel(v) {
+  if (!v) {
+    return true
+  }
+  let netChannels = 0
+  let recvDevice = null
+  const model = zone.core.model.toLowerCase()
+  switch (model) {
+    case '510i':
+      netChannels = 32
+      break
+    default:
+      netChannels = 4
+      break
+  }
+
+  for (let i = 0; i < reciver.value.length; i++) {
+    if (reciver.value[i]._id === v) {
+      if (
+        (recvDevice =
+          reciver.value[i].mode && reciver.value[i].mode === 'Local')
+      )
+        return true
+    }
+  }
+
+  if (props.idx || props.idx === 0) {
+    console.log(netChannels, props.idx)
+    if (props.idx >= netChannels) {
+      return '사용할 수 있는 네트워크 채널을 초과 했습니다.'
+    }
+  } else {
+    for (let i = 0; i < children.value.length; i++) {
+      if (children.value[i] === v) {
+        if (zone.children.length + i >= netChannels) {
+          return '사용할 수 있는 네트워크 채널을 초과 했습니다.'
+        }
+      }
+    }
+  }
+
+  return true
+}
+
 async function onSubmit() {
   if (channel.value || channel.value === 0) {
-    console.log('zone', channel.value, zone.children[channel])
-
     zone.children[channel.value] = children.value[0]
-    console.log(zone.children)
     return onDialogOK(zone.children)
   }
   onDialogOK(zone.children.concat(children.value))
@@ -141,7 +181,7 @@ async function onSubmit() {
                 "
                 :options="options"
                 lazy-rules
-                :rules="[chkZoneDebLocal, chkZoneDub]"
+                :rules="[chkZoneDebLocal, chkZoneDub, chkNetworkChannel]"
                 emit-value
                 map-options
                 option-value="_id"

@@ -59,12 +59,12 @@ async function getEventLogs() {
 function logLevelColor(level) {
   let color
   switch (level) {
-    case 'warn':
-    case 'admin_warn':
+    case 1:
+    case 4:
       color = 'bg-yellow text-black'
       break
-    case 'error':
-    case 'admin_error':
+    case 2:
+    case 5:
       color = 'bg-red text-white'
       break
     default:

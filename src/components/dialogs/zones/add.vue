@@ -26,8 +26,7 @@ const zone = reactive({
   index: null,
   core: null,
   name: '',
-  channels: 0,
-  children: []
+  channels: 0
 })
 
 onMounted(() => {
@@ -37,15 +36,10 @@ onMounted(() => {
       (zone.index = props.item.index),
       (zone.name = props.item.name),
       (zone.core = props.item.core),
-      (zone.channels = props.item.channels),
-      (zone.children = props.item.children)
+      (zone.channels = props.item.channels)
     edit.value = true
   }
 })
-
-function fnUpdateChannels() {
-  zone.children = new Array(Number(zone.channels))
-}
 
 function fnFilter(val, update) {
   if (!val) {
@@ -57,15 +51,6 @@ function fnFilter(val, update) {
       options.value = sender.value.filter((v) => v.name.indexOf(val) > -1)
     })
   }
-}
-
-function fnSetChannels() {
-  $q.dialog({
-    component: SetChannels,
-    componentProps: { item: zone }
-  }).onOk((items) => {
-    console.log(items)
-  })
 }
 
 function onSubmit() {
@@ -147,16 +132,7 @@ function onSubmit() {
               lazy-rules
               type="number"
               :rules="[required, chkInt]"
-              @update:model-value="fnUpdateChannels"
             />
-            <!-- <q-btn
-              v-if="zone.channels"
-              unelevated
-              color="primary"
-              class="full-width"
-              label="채널 설정"
-              @click="fnSetChannels"
-            ></q-btn> -->
           </div>
         </q-card-section>
 
