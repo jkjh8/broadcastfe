@@ -98,7 +98,6 @@ function chkNetworkChannel(v) {
   }
 
   if (props.idx || props.idx === 0) {
-    console.log(netChannels, props.idx)
     if (props.idx >= netChannels) {
       return '사용할 수 있는 네트워크 채널을 초과 했습니다.'
     }

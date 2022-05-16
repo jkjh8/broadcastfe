@@ -57,7 +57,7 @@ function fnDelete(item) {
   }).onOk(async () => {
     $q.loading.show()
     try {
-      await api.get(`/zones/delete?id=${item._id}$name=${item.name}`)
+      await api.get(`/zones/delete?id=${item._id}&name=${item.name}`)
       getZones()
       $q.loading.hide()
     } catch (err) {
@@ -85,8 +85,8 @@ function fnAddLocal(item, idx) {
     try {
       $q.loading.show()
       await api.put('/zones/addchildrens', {
-        id: item._id,
-        childrens: childrens
+        ...item,
+        children: childrens
       })
       getZones()
       $q.loading.hide()
@@ -117,6 +117,7 @@ function fnDelLocal(zone, idx) {
       $q.loading.show()
       await api.put('/zones/addchildrens', {
         id: zone._id,
+        name: zone.name,
         childrens: zone.children
       })
       getZones()
