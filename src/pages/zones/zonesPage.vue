@@ -86,7 +86,7 @@ function fnAddLocal(item, idx) {
       $q.loading.show()
       await api.put('/zones/addchildrens', {
         ...item,
-        children: childrens
+        children: Array(...childrens)
       })
       getZones()
       $q.loading.hide()
