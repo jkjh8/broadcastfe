@@ -26,7 +26,8 @@ const zone = reactive({
   index: null,
   core: null,
   name: '',
-  channels: 0
+  channels: 0,
+  children: []
 })
 
 onMounted(() => {
@@ -36,7 +37,8 @@ onMounted(() => {
       (zone.index = props.item.index),
       (zone.name = props.item.name),
       (zone.core = props.item.core),
-      (zone.channels = props.item.channels)
+      (zone.channels = props.item.channels),
+      (zone.children = props.item.children)
     edit.value = true
   }
 })

@@ -86,7 +86,7 @@ function fnAddLocal(item, idx) {
       $q.loading.show()
       await api.put('/zones/addchildrens', {
         ...item,
-        children: Array(...childrens)
+        children: childrens
       })
       getZones()
       $q.loading.hide()
@@ -102,7 +102,7 @@ function fnAddLocal(item, idx) {
   })
 }
 
-function fnDelLocal(zone, idx) {
+function fnDelLocal(item, idx) {
   $q.dialog({
     component: Confirm,
     componentProps: {
@@ -113,12 +113,10 @@ function fnDelLocal(zone, idx) {
     }
   }).onOk(async () => {
     try {
-      zone.children.splice(idx, 1)
+      item.children.splice(idx, 1)
       $q.loading.show()
       await api.put('/zones/addchildrens', {
-        id: zone._id,
-        name: zone.name,
-        childrens: zone.children
+        ...item
       })
       getZones()
       $q.loading.hide()
