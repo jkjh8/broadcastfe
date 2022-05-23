@@ -21,6 +21,9 @@ import IconBtn from 'src/components/iconBtn.vue'
 
 import Confirm from 'components/dialogs/confirm'
 
+import useNotify from 'composables/useNotify'
+const { notifyWarn, notifyError } = useNotify()
+
 moment.locale('ko')
 const $q = useQuasar()
 
