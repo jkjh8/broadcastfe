@@ -22,25 +22,8 @@ function fnAdd(item) {
   $q.dialog({
     component: DialogAdd,
     componentProps: { item: item }
-  }).onOk(async (device) => {
-    $q.loading.show()
-    try {
-      if (device._id) {
-        await api.put('/zones', { _id: item._id, ...device })
-      } else {
-        await api.post('/zones', device)
-      }
-      getZones()
-      $q.loading.hide()
-    } catch (err) {
-      $q.loading.hide()
-      notifyError({
-        message: '방송구간 추가(수정) 중 오류가 발생하였습니다.',
-        caption:
-          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
-      })
-      console.error(err)
-    }
+  }).onOk(async () => {
+    getZones()
   })
 }
 
@@ -63,9 +46,7 @@ function fnDelete(item) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '방송구간 삭제 중 오류가 발생하였습니다.',
-        caption:
-          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+        message: '방송구간 삭제 중 오류가 발생하였습니다.'
       })
       console.error(err)
     }
@@ -93,9 +74,7 @@ function fnAddLocal(item, idx) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '방송구간 추가 중 오류가 발생하였습니다.',
-        caption:
-          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+        message: '방송구간 추가 중 오류가 발생하였습니다.'
       })
       console.error(err)
     }
@@ -123,9 +102,7 @@ function fnDelLocal(item, idx) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '방송구간 삭제 중 오류가 발생하였습니다.',
-        caption:
-          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+        message: '방송구간 삭제 중 오류가 발생하였습니다.'
       })
       console.error(err)
     }

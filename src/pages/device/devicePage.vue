@@ -59,9 +59,7 @@ function fnAdd(item) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.',
-        caption:
-          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+        message: '디바이스 추가(수정) 중 오류가 발생하였습니다.'
       })
       console.error(err)
     }
@@ -88,9 +86,7 @@ function fnDelete(item) {
     } catch (err) {
       $q.loading.hide()
       notifyError({
-        message: '디바이스 삭제 중 오류가 발생하였습니다.',
-        caption:
-          '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.'
+        message: '디바이스 삭제 중 오류가 발생하였습니다.'
       })
       console.error(err)
     }
@@ -123,18 +119,13 @@ onMounted(() => {
   getDevices()
   getStatus()
   timer.value = setInterval(() => {
-    // getDevices()
     getStatus()
     getPa()
   }, 10000)
-  // socket.emit('devicesConnect')
-  // socket.join('devices')
 })
 
 onUnmounted(() => {
   clearInterval(timer.value)
-  // socket.emit('devicesDisconnect')
-  // socket.leave('devices')
 })
 </script>
 
@@ -215,7 +206,9 @@ onUnmounted(() => {
             {{ props.row.name }}
           </q-td>
           <q-td key="ipaddress" :props="props">
-            {{ props.row.ipaddress }}
+            <a :href="`http://${props.row.ipaddress}`" target="_blank">
+              {{ props.row.ipaddress }}
+            </a>
           </q-td>
           <q-td key="deviceType" :props="props">
             {{ props.row.deviceType.toUpperCase() }}

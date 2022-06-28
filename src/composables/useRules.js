@@ -68,7 +68,6 @@ export const chkZoneDub = async (v) => {
       return '방송구간 내 중복된 지역이 있습니다.'
     }
   } catch (err) {
-    console.error(err)
     return '방송구간 확인중 문제가 발생하였습니다.'
   }
   return true

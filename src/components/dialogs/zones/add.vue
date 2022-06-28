@@ -1,7 +1,9 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
+import { api } from 'boot/axios'
 import { sender, reciver, getDevices } from 'composables/useDevices'
+import { childToId } from 'composables/useZones'
 import {
   required,
   chkIpaddr,
@@ -10,17 +12,19 @@ import {
   chkZoneIndex,
   chkIpExists
 } from 'composables/useRules'
-
+import useNotify from 'composables/useNotify'
 import SetChannels from 'components/dialogs/zones/channels'
 
 const $q = useQuasar()
+const { notifyWarn, notifyError } = useNotify()
 
 const props = defineProps({ item: Object })
 const emit = defineEmits([...useDialogPluginComponent.emits])
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent()
-const options = ref(sender.value)
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+
 const edit = ref(false)
+// cores to optioins
+const options = ref(sender.value)
 const zone = reactive({
   _id: null,
   index: null,
@@ -29,6 +33,23 @@ const zone = reactive({
   channels: 0,
   children: []
 })
+
+// check zone core dub
+async function chkZone(v) {
+  const r = await api.get(`/zones/exists?id=${v._id}`)
+  if (!zone._id) {
+    if (!r.data) {
+      return true
+    } else {
+      return '디바이스가 중복되었습니다.'
+    }
+  } else {
+    if (zone._id !== r.data._id) {
+      return '디바이스가 중복되었습니다.'
+    }
+  }
+  return true
+}
 
 onMounted(() => {
   getDevices()
@@ -55,7 +76,36 @@ function fnFilter(val, update) {
   }
 }
 
-function onSubmit() {
+async function onSubmit() {
+  $q.loading.show()
+  try {
+    // check channel length
+    if (zone.children.length > zone.channels) {
+      zone.children = zone.children.slice(0, zone.channels)
+    }
+    // make rt object
+    const r = {
+      zone: zone,
+      update: {
+        ...zone,
+        core: zone.core._id,
+        children: childToId(zone.children)
+      }
+    }
+    // return
+    if (zone._id) {
+      await api.put('/zones', r)
+    } else {
+      await api.post('/zones', r)
+    }
+    $q.loading.hide()
+  } catch (err) {
+    $q.loading.hide()
+    console.error(err)
+    notifyError({
+      message: '방송구간 추가(수정) 중 오류가 발생하였습니다.'
+    })
+  }
   onDialogOK(zone)
 }
 </script>
@@ -105,10 +155,9 @@ function onSubmit() {
               label="Core"
               :options="options"
               lazy-rules
-              :rules="[required]"
+              :rules="[required, chkZone]"
               emit-value
               map-options
-              option-value="_id"
               option-label="name"
               @filter="fnFilter"
             >

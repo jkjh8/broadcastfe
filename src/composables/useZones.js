@@ -9,4 +9,16 @@ async function getZones() {
   console.log(r.data)
 }
 
-export { zones, getZones }
+function childToId(child) {
+  const r = []
+  for (let i = 0; i < child.length; i++) {
+    if (child[i] === null) {
+      r.push(null)
+    } else {
+      r.push(child[i]._id)
+    }
+  }
+  return r
+}
+
+export { zones, getZones, childToId }

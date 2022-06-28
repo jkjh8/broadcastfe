@@ -11,8 +11,7 @@ import {
 
 const props = defineProps({ item: Object })
 const emit = defineEmits([...useDialogPluginComponent.emits])
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent()
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
 const edit = ref(false)
 const device = reactive({
@@ -45,7 +44,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <q-dialog ref="dialogRef" persistent @hide="onDialogHide">
+  <q-dialog ref="dialogRef" persistent>
     <q-card class="q-dialog-plugin" style="border-radius: 8px">
       <q-form @submit="onSubmit">
         <q-card-section class="row no-wrap items-center">

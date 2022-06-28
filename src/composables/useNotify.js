@@ -45,7 +45,9 @@ export default function () {
     return $q.notify({
       icon: 'fas fa-triangle-exclamation',
       message: message.message,
-      caption: message.caption ?? '',
+      caption:
+        message.caption ??
+        '잠시후에 다시 시도해 주세요. 오류가 계속되면 관리자에게 문의 해주세요.',
       position: 'top',
       color: 'negative',
       textColor: 'white',
