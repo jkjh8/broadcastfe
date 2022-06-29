@@ -1,13 +1,13 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
-import { sender, reciver, getDevices } from 'composables/useDevices'
+import { sender, receiver, getDevices } from 'composables/useDevices'
 
 const props = defineProps({ item: Object })
 const emit = defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
   useDialogPluginComponent()
-const options = ref(reciver.value)
+const options = ref(receiver.value)
 const chList = ref([])
 
 onMounted(() => {
@@ -21,11 +21,11 @@ onMounted(() => {
 function fnFilter(val, update) {
   if (!val) {
     update(() => {
-      options.value = reciver.value
+      options.value = receiver.value
     })
   } else {
     update(() => {
-      options.value = reciver.value.filter((v) => v.name.indexOf(val) > -1)
+      options.value = receiver.value.filter((v) => v.name.indexOf(val) > -1)
     })
   }
 }

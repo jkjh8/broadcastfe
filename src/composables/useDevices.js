@@ -6,7 +6,7 @@ let devices = ref([])
 let status = ref(null)
 let state = ref([])
 let sender = ref([])
-let reciver = ref([])
+let receiver = ref([])
 
 async function getDevices() {
   const r = await api.get('/device')
@@ -32,7 +32,7 @@ async function getPa() {
 
 function sortDevices(args) {
   sender.value = []
-  reciver.value = []
+  receiver.value = []
   for (let i = 0; i < args.length; i++) {
     if (args[i].deviceType === 'Q-Sys' && args[i].mode !== 'Local') {
       sender.value.push(args[i])
@@ -40,7 +40,7 @@ function sortDevices(args) {
       if (args[i].mode === 'Send') {
         sender.value.push(args[i])
       } else {
-        reciver.value.push(args[i])
+        receiver.value.push(args[i])
       }
     }
   }
@@ -91,7 +91,7 @@ export {
   status,
   state,
   sender,
-  reciver,
+  receiver,
   columns,
   getDevices,
   getStatus,

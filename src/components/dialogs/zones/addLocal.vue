@@ -1,8 +1,8 @@
 <script setup>
+import { api } from 'boot/axios'
 import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
-import { api } from 'boot/axios'
-import { sender, reciver, getDevices } from 'composables/useDevices'
+import { sender, receiver, getDevices } from 'composables/useDevices'
 import { children, chkZoneDebLocal, chkZoneDub } from 'composables/useRules'
 import IconBtn from 'components/iconBtn'
 
@@ -13,9 +13,8 @@ const $q = useQuasar()
 
 const props = defineProps({ item: Object, idx: Number })
 const emit = defineEmits([...useDialogPluginComponent.emits])
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent()
-const options = ref(reciver.value)
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const options = ref(receiver.value)
 const zone = reactive({
   _id: null,
   index: null,
@@ -49,11 +48,11 @@ onMounted(() => {
 function fnFilter(val, update) {
   if (!val) {
     update(() => {
-      options.value = reciver.value
+      options.value = receiver.value
     })
   } else {
     update(() => {
-      options.value = reciver.value.filter((v) => v.name.indexOf(val) > -1)
+      options.value = receiver.value.filter((v) => v.name.indexOf(val) > -1)
     })
   }
 }
@@ -87,11 +86,11 @@ function chkNetworkChannel(v) {
       break
   }
 
-  for (let i = 0; i < reciver.value.length; i++) {
-    if (reciver.value[i]._id === v) {
+  for (let i = 0; i < receiver.value.length; i++) {
+    if (receiver.value[i]._id === v) {
       if (
         (recvDevice =
-          reciver.value[i].mode && reciver.value[i].mode === 'Local')
+          receiver.value[i].mode && receiver.value[i].mode === 'Local')
       )
         return true
     }
@@ -125,7 +124,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <q-dialog ref="dialogRef" persistent @hide="onDialogHide">
+  <q-dialog ref="dialogRef" persistent>
     <q-card class="q-dialog-plugin" style="border-radius: 8px">
       <q-form @submit="onSubmit">
         <q-card-section class="row no-wrap items-center">
@@ -184,7 +183,6 @@ async function onSubmit() {
                 :rules="[chkZoneDebLocal, chkZoneDub, chkNetworkChannel]"
                 emit-value
                 map-options
-                option-value="_id"
                 option-label="name"
                 @filter="fnFilter"
               >

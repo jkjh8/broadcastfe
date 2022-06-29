@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { api } from 'boot/axios'
+import { receiver } from './useDevices'
 
 const zones = ref([])
 
@@ -19,6 +20,23 @@ function childToId(child) {
     }
   }
   return r
+}
+
+function chkNetworkChannel(v, core, children) {
+  const networkChannels = 32
+  if (!v) return true
+  if (core.model !== '510i') {
+    networkChannels = 4
+  }
+
+  for (let i = 0; i < children.length; i++) {
+    if (i > networkChannels) {
+      if (children[i].mode !== 'Local') {
+        return '사용할 수 있는 네트워크 채널을 초과 했습니다.'
+      }
+    }
+  }
+  return true
 }
 
 export { zones, getZones, childToId }

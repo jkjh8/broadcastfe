@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useQuasar, useDialogPluginComponent } from 'quasar'
 import { api } from 'boot/axios'
-import { sender, reciver, getDevices } from 'composables/useDevices'
+import { sender, receiver, getDevices } from 'composables/useDevices'
 import { childToId } from 'composables/useZones'
 import {
   required,
